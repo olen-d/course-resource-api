@@ -1,0 +1,40 @@
+{
+  "name": "course-resource",
+  "version": "1.0.0",
+  "description": "Content management system to manage reviews and information about athletic courses.",
+  "type": "module",
+  "main": "course-resource-server.js",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "fastify": "^3.24.1",
+    "fastify-env": "^2.1.1",
+    "fastify-mongodb": "^4.1.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.4.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-config-xo": "^0.39.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.2.0",
+    "eslint-plugin-vue": "^8.2.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/olen-d/course-resource.git"
+  },
+  "keywords": [
+    "rides",
+    "routes"
+  ],
+  "author": "Olen Daelhousen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/olen-d/course-resource/issues"
+  },
+  "homepage": "https://github.com/olen-d/course-resource#readme"
+}
