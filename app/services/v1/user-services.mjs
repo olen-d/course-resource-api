@@ -34,7 +34,7 @@ const readUserRole = async (_db, info) => {
 }
 
 const readAllUsers = async (_db) => {
-  const cursor = _db.collection('users').find().project({ _id: 1, firstName: 1, lastName: 1, role: 1 })
+  const cursor = _db.collection('users').find().project({ _id: 1, firstName: 1, lastName: 1, role: 1, username: 1 })
 
   try {
     const data = await cursor.toArray()
