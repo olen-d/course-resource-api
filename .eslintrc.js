@@ -8,6 +8,10 @@ module.exports = {
 		'plugin:vue/essential',
 		'xo',
 	],
+	rules: {
+		'no-unused-vars': 'error',
+		quotes: ['error', 'single']
+	},
 	parserOptions: {
 		ecmaVersion: 13,
 		sourceType: 'module',

@@ -41,7 +41,8 @@ const readAllSchema = {
               _id: { type: 'string' },
               firstName: { type: 'string' },
               lastName: { type: 'string' },
-              role: { type: 'string' }
+              role: { type: 'string' },
+              username: { type: 'string' }
             }
           }
         }

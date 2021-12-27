@@ -3,6 +3,7 @@ import Fastify from 'fastify';
 import fastifyEnv from 'fastify-env';
 import fastifyMongodb from 'fastify-mongodb'
 
+import { routes as courseRoutes } from './app/routes/v1/course-routes.mjs'
 import { routes as userRoutes } from './app/routes/v1/user-routes.mjs';
 
 // eslint-disable-next-line new-cap
@@ -98,7 +99,8 @@ const initialize = async () => {
 // 	app.register(require('./app/routes/v1/authRoutes'), {prefix: 'api/v1/auth'});
 // 	app.register(require('./app/routes/v1/quizRoutes'), {prefix: 'api/v1/quizzes'});
 // 	app.register(require('./app/routes/v1/userRoutes'), {prefix: 'api/v1/users'});
-	app.register(userRoutes, {prefix: 'api/v1/users'});
+	app.register(courseRoutes, { prefix: 'api/v1/courses' })
+	app.register(userRoutes, {prefix: 'api/v1/users' });
 };
 
 initialize();
