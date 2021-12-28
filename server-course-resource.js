@@ -83,12 +83,19 @@ const initialize = async () => {
 	// Database
 	// Connection URL
 	const dbName = encodeURIComponent(app.config.DB_NAME);
-	const username = encodeURIComponent(app.config.DB_USERNAME);
-	const password = encodeURIComponent(app.config.DB_PASSWORD);
+	// const username = encodeURIComponent(app.config.DB_USERNAME);
+	// const password = encodeURIComponent(app.config.DB_PASSWORD);
+	const username = app.config.DB_USERNAME;
+	const password = app.config.DB_PASSWORD;
 
-	const url = `mongodb://${username}:${password}@localhost:27017/${dbName}`;
+	// const url = `mongodb://${username}:${password}@localhost:27017/${dbName}`;
+	const url = `mongodb://localhost:27017/${dbName}`;
 
 	app.register(fastifyMongodb, {
+		auth: {
+			username,
+			password
+		},
 		forceClose: true,
 		url,
 		useUnifiedTopology: true,
