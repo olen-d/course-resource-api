@@ -81,14 +81,12 @@ const initialize = async () => {
 // 	});
 
 	// Database
-	// Connection URL
+	// Get the .env variables
 	const dbName = encodeURIComponent(app.config.DB_NAME);
-	// const username = encodeURIComponent(app.config.DB_USERNAME);
-	// const password = encodeURIComponent(app.config.DB_PASSWORD);
 	const username = app.config.DB_USERNAME;
 	const password = app.config.DB_PASSWORD;
 
-	// const url = `mongodb://${username}:${password}@localhost:27017/${dbName}`;
+	// Connection URL
 	const url = `mongodb://localhost:27017/${dbName}`;
 
 	app.register(fastifyMongodb, {
