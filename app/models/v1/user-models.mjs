@@ -13,7 +13,7 @@ const newUser = async (_db, userInfo) => {
     emailAddress,
     firstName,
     lastName,
-    plainTextPassword,
+    plaintextPassword,
     role,
     username
   } = userInfo
@@ -21,7 +21,7 @@ const newUser = async (_db, userInfo) => {
   const isValidEmailAddress = validateEmailAddress(emailAddress)
   const isValidFirstName = validateFirstName(firstName)
   const isValidLastName = validateLastName(lastName)
-  const isValidPassword = validatePassword(plainTextPassword)
+  const isValidPassword = validatePassword(plaintextPassword)
   const isValidRole = validateRole(role)
   const isValidUsername = validateUsername(username)
 
@@ -37,7 +37,7 @@ const newUser = async (_db, userInfo) => {
 
   // !TODO: check the errors array for "true" and send the errors up to the controller
   if (foundValidationError === -1) {
-    const passwordHash = await hashPassword(plainTextPassword)
+    const passwordHash = await hashPassword(plaintextPassword)
 
     if (passwordHash) {
       const userInfoValidated = {
