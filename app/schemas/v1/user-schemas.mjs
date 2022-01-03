@@ -1,7 +1,7 @@
 const addSchema = {
   body: {
     type: 'object',
-    required: ['emailAddress', 'firstName', 'lastName', 'plainTextPassword', 'role', 'username'],
+    required: ['emailAddress', 'firstName', 'lastName', 'plaintextPassword', 'role', 'username'],
     properties: {
       emailAddress: {
         type: 'string'
@@ -12,7 +12,7 @@ const addSchema = {
       lastName: {
         type: 'string'
       },
-      plainTextPassword: {
+      plaintextPassword: {
         type: 'string'
       },
       role: {

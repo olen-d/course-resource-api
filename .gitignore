@@ -1,3 +1,6 @@
+# PEM files
+config/
+
 # Logs
 logs
 *.log
