@@ -15,7 +15,8 @@ const newUser = async (_db, userInfo) => {
     lastName,
     plaintextPassword,
     role,
-    username
+    username,
+    createdBy
   } = userInfo
 
   const isValidEmailAddress = validateEmailAddress(emailAddress)
@@ -46,7 +47,8 @@ const newUser = async (_db, userInfo) => {
         lastName,
         passwordHash,
         role,
-        username
+        username,
+        createdBy
       }
 
       const data = await createUser(_db, userInfoValidated)

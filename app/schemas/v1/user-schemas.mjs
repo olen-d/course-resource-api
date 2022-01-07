@@ -1,4 +1,7 @@
+import { authSchema } from './header-auth-schema.mjs'
+
 const addSchema = {
+  headers: authSchema,
   body: {
     type: 'object',
     required: ['emailAddress', 'firstName', 'lastName', 'plaintextPassword', 'role', 'username'],
@@ -19,6 +22,9 @@ const addSchema = {
         type: 'string'
       },
       username: {
+        type: 'string'
+      },
+      createdBy: {
         type: 'string'
       }
     },
@@ -42,7 +48,8 @@ const readAllSchema = {
               firstName: { type: 'string' },
               lastName: { type: 'string' },
               role: { type: 'string' },
-              username: { type: 'string' }
+              username: { type: 'string' },
+              createdBy: { type: 'string' }
             }
           }
         }
