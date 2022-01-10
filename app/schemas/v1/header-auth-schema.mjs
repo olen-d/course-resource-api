@@ -2,7 +2,7 @@ const authSchema = {
   type: 'object',
   required: ['Authorization'],
   properties: {
-    token: {
+    Authorization: {
       type: 'string'
     }
   }
