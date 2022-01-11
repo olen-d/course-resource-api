@@ -4,12 +4,20 @@ import { getAllCourses, newCourse } from '../../models/v1/course-models.mjs'
 async function addCourse (req, reply) {
   const { mongo: { db: _db } } = this // _ObjectID is also available
 
-  const { body } = req
-  const trimmed = trimAll(body)
-  const courseInfo = sanitizeAll(trimmed)
+  const { body, verifiedAuthToken: { role, sub }, } = req
+  // Array of roles authorized to create courses
+  const rolesAuthorized = ['author', 'publisher', 'admin', 'superadmin']
+  const canCreateCourse = rolesAuthorized.indexOf(role) !== -1
 
-  const result = await newCourse(_db, courseInfo)
-  return result
+  if (canCreateCourse) {
+    const trimmed = trimAll(body)
+    const courseInfo = sanitizeAll(trimmed)
+    // TODO: Check that the userId in the client submittal equals the userId from the token (i.e. sub)
+    const result = await newCourse(_db, courseInfo)
+    return result
+  } else {
+    throw new Error('current role cannot create a course')
+  }
 }
 
 async function readAllCourses (req, reply) {

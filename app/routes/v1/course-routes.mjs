@@ -4,7 +4,7 @@ import * as schemas from '../../schemas/v1/course-schemas.mjs'
 
 const routes = (app, opts, done) => {
   app.get('/', { schema: schemas.readAllSchema }, courseControllers.readAllCourses)
-  app.post('/course', { schema: schemas.addSchema }, courseControllers.addCourse)
+  app.post('/course', { schema: schemas.addSchema, preHandler: app.auth([app.verifyJWT]) }, courseControllers.addCourse)
   done()
 }
 
