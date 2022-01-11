@@ -1,4 +1,7 @@
+import { authSchema } from './header-auth-schema.mjs'
+
 const addSchema = {
+  headers: authSchema,
   body: {
     type: 'object',
     required: [ 'userId' ],
