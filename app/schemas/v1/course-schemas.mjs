@@ -95,6 +95,12 @@ const readAllSchema = {
                 items: {
                   type: 'string'
                 }
+              },
+              courseFiles: {
+                type: 'array',
+                itesms: {
+                  type: 'string'
+                }
               }
             }
           }

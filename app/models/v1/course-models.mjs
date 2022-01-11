@@ -31,7 +31,8 @@ const newCourse = async (_db, courseInfo) => {
     facts,
     parking,
     creation,
-    photographs
+    photographs,
+    courseFiles
   } = courseInfo
 
   // !TODO: check the errors array for "true" and send the errors up to the controller
