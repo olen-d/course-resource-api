@@ -4,11 +4,33 @@ const addSchema = {
   headers: authSchema,
   body: {
     type: 'object',
-    required: [ 'userId' ],
+    required: [ 
+      'title',
+      'slug',
+      'creatorId',
+      'ownerId',
+      'isPublished',
+      'publishOn',
+      'length',
+      'ascent',
+      'location',
+      'difficulty',
+      'summary',
+      'terrain',
+      'setting',
+      'happiness',
+      'facts',
+      'parking',
+      'creation',
+      'courseFiles'
+    ],
     properties: {
       title: { type: 'string'},
       slug: { type: 'string' },
-      userId: { type: 'string' },
+      creatorId: { type: 'string' },
+      ownerId: { type: 'string' },
+      isPublished: { type: 'boolean' },
+      publishOn: { type: 'string' },
       length: { type: 'number' },
       ascent: { type: 'number' },
       location: {
@@ -44,6 +66,12 @@ const addSchema = {
         items: {
           type: 'string'
         }
+      },
+      courseFiles: {
+        type: 'array',
+        items: {
+          type: 'string'
+        }
       }
     }
   }
@@ -62,7 +90,10 @@ const readAllSchema = {
             properties: {
               title: { type: 'string'},
               slug: { type: 'string' },
-              userId: { type: 'string' },
+              creatorId: { type: 'string' },
+              ownerId: { type: 'string' },
+              isPublished: { type: 'boolean' },
+              publishOn: { type: 'string' },
               length: { type: 'number' },
               ascent: { type: 'number' },
               location: {
@@ -101,7 +132,7 @@ const readAllSchema = {
               },
               courseFiles: {
                 type: 'array',
-                itesms: {
+                items: {
                   type: 'string'
                 }
               }

@@ -9,7 +9,10 @@ const newCourse = async (_db, courseInfo) => {
   const {
     title,
     slug,
-    userId,
+    creatorId,
+    ownerId,
+    isPublished,
+    publishOn,
     length,
     ascent,
     location: {
