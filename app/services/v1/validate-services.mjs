@@ -102,6 +102,17 @@ const validateRole = role => {
   })
 }
 
+const validateTimestamp = timestamp => {
+  return new Promise((resolve, reject) => {
+    try {
+      const isValid = Number.isInteger(timestamp)
+      resolve(isValid)
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
 const validateUsername = username => {
   return new Promise((resolve, reject) => {
     try {
@@ -115,4 +126,4 @@ const validateUsername = username => {
   })
 }
 
-export { processValidations, validateEmailAddress, validateFirstName, validateLastName, validatePassword, validateRole, validateUsername}
+export { processValidations, validateEmailAddress, validateFirstName, validateLastName, validatePassword, validateRole, validateTimestamp, validateUsername}

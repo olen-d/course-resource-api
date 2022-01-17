@@ -30,6 +30,7 @@ const newUser = async (_db, userInfo) => {
   const fields = ['emailAddress', 'firstName', 'lastName', 'password', 'role', 'username'] // These need to be in the same order as Promise.allSettled above
 
   // Loop through validations
+  // TODO: Fix this, since it doesn't work. See course-models
   const validationResults = await processValidations(fields, validations)
   const foundValidationError = validationResults.findIndex((field) => {
     const [fieldName] = (Object.keys(field))
