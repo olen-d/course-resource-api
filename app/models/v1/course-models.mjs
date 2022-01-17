@@ -1,7 +1,10 @@
 import { createCourse, readAllCourses } from '../../services/v1/course-services.mjs'
 
-const getAllCourses = async (_db) => {
-  const data = await readAllCourses(_db)
+const getAllCourses = async (_db, filters) => {
+  // TODO: Sanitize filters
+  const [ filter ] = filters
+  
+  const data = await readAllCourses(_db, filter)
   return Array.isArray(data) && data.length > 0 ? { status: 'ok', data } : { status: 'error' }
 }
 

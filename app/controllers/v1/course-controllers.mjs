@@ -22,8 +22,8 @@ async function addCourse (req, reply) {
 
 async function readAllCourses (req, reply) {
   const { mongo: { db: _db } } = this
-
-  const result = await getAllCourses(_db)
+  const filters = [{ isPublished: true }]
+  const result = await getAllCourses(_db, filters)
   const { status } = result
 
   if ( status === 'error' ) {
@@ -37,5 +37,30 @@ async function readAllCourses (req, reply) {
       .send(result)
   }
 }
+
+// async function adminReadAllCourses (req, reply) {
+//   const { mongo: { db: _db } } = this
+
+//   // Check for authorization
+//   // If no authorization, return published true only
+//   // If role is user, return user courses only
+//   // If role is publisher, return publisher & user courses assigned to that publisher
+//   // If role is admin, return admin & user/publisher courses assigned to that admin
+//   // If role is superadmin, return all courses
+
+//   const result = await getAllCourses(_db)
+//   const { status } = result
+
+//   if ( status === 'error' ) {
+//     // TODO: Figure out what the error is and send an appropriate code
+//     reply
+//       .code(404)
+//       .send(result)
+//   } else if ( status === 'ok') {
+//     reply
+//       .code(200)
+//       .send(result)
+//   }
+// }
 
 export { addCourse, readAllCourses }

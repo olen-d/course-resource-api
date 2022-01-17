@@ -7,8 +7,8 @@ const createCourse = async (_db, newCourse) => {
   }
 }
 
-const readAllCourses = async (_db) => {
-  const cursor = _db.collection('courses').find()
+const readAllCourses = async (_db, filters) => {
+  const cursor = _db.collection('courses').find(filters)
 
   try {
     const data = await cursor.toArray()
