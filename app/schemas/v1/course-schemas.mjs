@@ -30,7 +30,7 @@ const addSchema = {
       creatorId: { type: 'string' },
       ownerId: { type: 'string' },
       isPublished: { type: 'boolean' },
-      publishOn: { type: 'string' },
+      publishOn: { type: 'number' },
       length: { type: 'number' },
       ascent: { type: 'number' },
       location: {
@@ -93,7 +93,7 @@ const readAllSchema = {
               creatorId: { type: 'string' },
               ownerId: { type: 'string' },
               isPublished: { type: 'boolean' },
-              publishOn: { type: 'string' },
+              publishOn: { type: 'number' },
               length: { type: 'number' },
               ascent: { type: 'number' },
               location: {

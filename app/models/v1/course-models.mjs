@@ -1,4 +1,5 @@
 import { createCourse, readAllCourses } from '../../services/v1/course-services.mjs'
+import { processValidations, validateTimestamp } from '../../services/v1/validate-services.mjs'
 
 const getAllCourses = async (_db, filters) => {
   // TODO: Sanitize filters
@@ -9,6 +10,8 @@ const getAllCourses = async (_db, filters) => {
 }
 
 const newCourse = async (_db, courseInfo) => {
+
+  // new Date()
   const {
     title,
     slug,
@@ -41,10 +44,20 @@ const newCourse = async (_db, courseInfo) => {
     courseFiles
   } = courseInfo
 
-  // !TODO: check the errors array for "true" and send the errors up to the controller
-  const foundValidationError = -1
+  const isValidPublishOn = validateTimestamp(publishOn)
+
+  const validations = await Promise.allSettled([isValidPublishOn])
+  const fields = ['publishOn'] // These need to be in the same order as Promise.allSettled above
+
+  // Loop through validations
+  const validationResults = await processValidations(fields, validations)
+  const foundValidationError = validationResults.findIndex((field) => {
+    if (field.isValid === false) { return true }
+  })
+
   if (foundValidationError === -1) {
     const data = await createCourse(_db, courseInfo)
+    // TODO: check for error and return to view level
     return { status: 'ok', data }
   } else {
     return { status: 'error', type: 'validation', message: 'unable to validate one or more values', validationResults }
