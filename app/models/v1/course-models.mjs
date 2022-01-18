@@ -2,10 +2,7 @@ import { createCourse, readAllCourses } from '../../services/v1/course-services.
 import { processValidations, validateTimestamp } from '../../services/v1/validate-services.mjs'
 
 const getAllCourses = async (_db, filters) => {
-  // TODO: Sanitize filters
-  const [ filter ] = filters
-  
-  const data = await readAllCourses(_db, filter)
+  const data = await readAllCourses(_db, filters)
   return Array.isArray(data) && data.length > 0 ? { status: 'ok', data } : { status: 'error' }
 }
 

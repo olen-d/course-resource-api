@@ -10,7 +10,15 @@ const createCourse = async (_db, newCourse) => {
 }
 
 const readAllCourses = async (_db, filters) => {
-  const cursor = _db.collection('courses').find(filters)
+  // TODO: Sanitize filters
+  const mongoFilters = filters.reduce((obj, item) => {
+    const [key] = Object.keys(item)
+    const value = item[key]
+    obj[key] = value
+    return obj
+  }, {})
+
+  const cursor = await _db.collection('courses').find(mongoFilters)
 
   try {
     const data = await cursor.toArray()
