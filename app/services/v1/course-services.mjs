@@ -18,7 +18,7 @@ const readAllCourses = async (_db, filters) => {
     return obj
   }, {})
 
-  const cursor = await _db.collection('courses').find(mongoFilters)
+  const cursor = await _db.collection('courses').find(mongoFilters).sort({ 'publishOn': -1 })
 
   try {
     const data = await cursor.toArray()
