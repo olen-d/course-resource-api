@@ -22,7 +22,19 @@ async function addCourse (req, reply) {
 
 async function readAllCourses (req, reply) {
   const { mongo: { db: _db } } = this
-  const filters = [{ isPublished: true }, { publishOn: { $lte: new Date() } }]
+
+  const { verifiedAuthToken: { role, sub }, } = req
+
+  const filters = []
+
+  if (role === 'superadmin') {
+    filters.push({})
+  } else if (role === 'author') {
+    filters.push({ ownerId: sub })
+  }
+
+  // const filters = [{ isPublished: true }, { publishOn: { $lte: new Date() } }]
+  // const filters = [{}]
   const result = await getAllCourses(_db, filters)
   const { status } = result
 
@@ -38,7 +50,24 @@ async function readAllCourses (req, reply) {
   }
 }
 
-// async function adminReadAllCourses (req, reply) {
+async function readPublishedCourses (req, reply) {
+  const { mongo: { db: _db } } = this
+  const filters = [{ isPublished: true }, { publishOn: { $lte: new Date() } }]
+  const result = await getAllCourses(_db, filters)
+  const { status } = result
+
+  if ( status === 'error' ) {
+    // TODO: Figure out what the error is and send an appropriate code
+    reply
+      .code(404)
+      .send(result)
+  } else if ( status === 'ok') {
+    reply
+      .code(200)
+      .send(result)
+  }
+}
+// async function readAllCourses (req, reply) {
 //   const { mongo: { db: _db } } = this
 
 //   // Check for authorization
@@ -63,4 +92,4 @@ async function readAllCourses (req, reply) {
 //   }
 // }
 
-export { addCourse, readAllCourses }
+export { addCourse, readAllCourses, readPublishedCourses }
