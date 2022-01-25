@@ -3,6 +3,7 @@ import Fastify from 'fastify'
 
 // Fastify plugins
 import fastifyAuth from 'fastify-auth'
+import fastifyCors from 'fastify-cors'
 import fastifyEnv from 'fastify-env'
 import fastifyMongodb from 'fastify-mongodb'
 
@@ -101,10 +102,11 @@ const initialize = async () => {
 			reply.code(401).send(error)
 		}
 	})
-// 	// !TODO: Fix this before deploy to enable cors on production server
-// 	app.register(require('fastify-cors'), {
-// 		origin: '*',
-// 	})
+	
+	// !TODO: Fix this before deploy to enable cors on production server
+	app.register(fastifyCors, {
+		origin: '*',
+	})
 
 	// Database
 	// Get the .env variables
