@@ -1,3 +1,7 @@
+import * as fsPromises from 'fs/promises'
+import { pipeline } from 'stream'
+import * as util from 'util'
+
 const createCourse = async (_db, newCourse) => {
   try {
     const { publishOn: publishOnValue } = newCourse
@@ -6,6 +10,19 @@ const createCourse = async (_db, newCourse) => {
     return result
   } catch (error) {
     console.log('ERROR:', error)
+  }
+}
+const createCourseFiles = async (req, pathFilesCourses) => {
+  const pump = util.promisify(pipeline)
+  try {
+    const parts = req.files()
+    for await (const part of parts) {
+      const filehandle = await fsPromises.open(`${pathFilesCourses}/${part.filename}`, 'w')
+      await pump(part.file, filehandle.createWriteStream())
+    }
+    return { status: 'created' }
+  } catch (error) {
+    return { status: 'error', type: 'upload', message: 'unable to upload one or more files' }
   }
 }
 
@@ -28,4 +45,4 @@ const readAllCourses = async (_db, filters) => {
   }
 }
 
-export { createCourse, readAllCourses }
+export { createCourse, createCourseFiles, readAllCourses }

@@ -6,6 +6,7 @@ import fastifyAuth from 'fastify-auth'
 import fastifyCors from 'fastify-cors'
 import fastifyEnv from 'fastify-env'
 import fastifyMongodb from 'fastify-mongodb'
+import fastifyMultipart from 'fastify-multipart'
 
 // Routes
 import { routes as authRoutes } from './app/routes/v1/auth-routes.mjs'
@@ -32,6 +33,9 @@ const schema = {
 		},
 		DB_USERNAME: {
 			type: 'string',
+		},
+		PATH_FILES_COURSES: {
+			type: 'string'
 		},
 		PORT: {
 			type: 'string',
@@ -83,6 +87,7 @@ const options = {
 const initialize = async () => {
 	app.register(fastifyAuth)
 	app.register(fastifyEnv, options)
+	app.register(fastifyMultipart)
 	await app.after()
 
 	// Authorization

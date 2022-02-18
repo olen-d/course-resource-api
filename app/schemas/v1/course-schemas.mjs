@@ -78,6 +78,10 @@ const addSchema = {
   }
 }
 
+const addCourseFilesSchema = {
+  headers: authSchema
+}
+
 const readAllSchema = {
   headers: authSchema,
   readAllSubSchema
@@ -87,4 +91,4 @@ const readPublishedSchema = {
   readAllSubSchema
 }
 
-export { addSchema, readAllSchema, readPublishedSchema }
+export { addSchema, addCourseFilesSchema, readAllSchema, readPublishedSchema }

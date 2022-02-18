@@ -1,3 +1,4 @@
+import { createCourseFiles } from '../../services/v1/course-services.mjs'
 import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
 import { getAllCourses, newCourse } from '../../models/v1/course-models.mjs'
 
@@ -7,9 +8,9 @@ async function addCourse (req, reply) {
   const { body, verifiedAuthToken: { role, sub }, } = req
   // Array of roles authorized to create courses
   const rolesAuthorized = ['author', 'publisher', 'admin', 'superadmin']
-  const canCreateCourse = rolesAuthorized.indexOf(role) !== -1
+  const canCreate = rolesAuthorized.indexOf(role) !== -1
 
-  if (canCreateCourse) {
+  if (canCreate) {
     const trimmed = trimAll(body)
     const courseInfo = sanitizeAll(trimmed)
     // TODO: Check that the userId in the client submittal equals the userId from the token (i.e. sub)
@@ -17,6 +18,26 @@ async function addCourse (req, reply) {
     return result
   } else {
     throw new Error('current role cannot create a course')
+  }
+}
+
+async function addCourseFiles (req, reply) {
+  const { config: { PATH_FILES_COURSES: pathFilesCourses } } = this
+
+  const { verifiedAuthToken: { role, sub } } = req
+  // Array of roles authorized to upload course files
+  const rolesAuthorized = ['author', 'publisher', 'admin', 'superadmin']
+  const canCreate = rolesAuthorized.indexOf(role) !== -1
+
+  if (canCreate) {
+    const result = await createCourseFiles(req, pathFilesCourses)
+    const { status } = result
+
+    if (status !== 'created') {
+      reply.code(500).send(result)
+    } else {
+      reply.code(201).send(result)
+    }
   }
 }
 
@@ -92,4 +113,4 @@ async function readPublishedCourses (req, reply) {
 //   }
 // }
 
-export { addCourse, readAllCourses, readPublishedCourses }
+export { addCourse, addCourseFiles, readAllCourses, readPublishedCourses }
