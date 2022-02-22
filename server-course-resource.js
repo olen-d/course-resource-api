@@ -37,6 +37,9 @@ const schema = {
 		PATH_FILES_COURSES: {
 			type: 'string'
 		},
+		PATH_FILES_IMAGES: {
+			type: 'string'
+		},
 		PORT: {
 			type: 'string',
 			default: 3300,

@@ -1,4 +1,4 @@
-import { createCourseFiles } from '../../services/v1/course-services.mjs'
+import { createCourseFiles, createCourseImages } from '../../services/v1/course-services.mjs'
 import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
 import { getAllCourses, newCourse } from '../../models/v1/course-models.mjs'
 
@@ -31,6 +31,26 @@ async function addCourseFiles (req, reply) {
 
   if (canCreate) {
     const result = await createCourseFiles(req, pathFilesCourses)
+    const { status } = result
+
+    if (status !== 'created') {
+      reply.code(500).send(result)
+    } else {
+      reply.code(201).send(result)
+    }
+  }
+}
+
+async function addCourseImages (req, reply) {
+  const { config: { PATH_FILES_IMAGES: pathFilesImages } } = this
+
+  const { verifiedAuthToken: { role, sub } } = req
+  // Array of roles authorized to upload course images
+  const rolesAuthorized = ['author', 'publisher', 'admin', 'superadmin']
+  const canCreate = rolesAuthorized.indexOf(role) !== -1
+
+  if (canCreate) {
+    const result = await createCourseImages(req, pathFilesImages)
     const { status } = result
 
     if (status !== 'created') {
@@ -113,4 +133,4 @@ async function readPublishedCourses (req, reply) {
 //   }
 // }
 
-export { addCourse, addCourseFiles, readAllCourses, readPublishedCourses }
+export { addCourse, addCourseFiles, addCourseImages, readAllCourses, readPublishedCourses }

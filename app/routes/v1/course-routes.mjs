@@ -7,7 +7,7 @@ const routes = (app, opts, done) => {
   app.get('/all', { schema: schemas.readAllSchema, preHandler: app.auth([app.verifyJWT]) }, courseControllers.readAllCourses)
   app.post('/course', { schema: schemas.addSchema, preHandler: app.auth([app.verifyJWT]) }, courseControllers.addCourse)
   app.post('/files', { schema: schemas.addCourseFilesSchema, preHandler: app.auth([app.verifyJWT]) }, courseControllers.addCourseFiles)
-  // Post route for photos /course/images
+  app.post('/images', { schema: schemas.addCourseImagesSchema, preHandler: app.auth([app.verifyJWT]) }, courseControllers.addCourseImages)
   done()
 }
 
