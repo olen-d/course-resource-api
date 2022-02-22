@@ -26,6 +26,21 @@ const createCourseFiles = async (req, pathFilesCourses) => {
   }
 }
 
+const createCourseImages = async (req, pathFilesImages) => {
+  const pump = util.promisify(pipeline)
+  try {
+    const parts = req.files()
+    for await (const part of parts) {
+      const filehandle = await fsPromises.open(`${pathFilesImages}/${part.filename}`, 'w')
+      await pump(part.file, filehandle.createWriteStream())
+    }
+    return { status: 'created' }
+  } catch (error) {
+    console.log(`\n\n${JSON.stringify(error, null, 2)}\n\n\n`)
+    return { status: 'error', type: 'upload', message: 'unable to upload one or more files' }
+  }
+}
+
 const readAllCourses = async (_db, filters) => {
   // TODO: Sanitize filters
   const mongoFilters = filters.reduce((obj, item) => {
@@ -45,4 +60,4 @@ const readAllCourses = async (_db, filters) => {
   }
 }
 
-export { createCourse, createCourseFiles, readAllCourses }
+export { createCourse, createCourseFiles, createCourseImages, readAllCourses }
