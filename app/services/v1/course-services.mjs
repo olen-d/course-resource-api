@@ -36,7 +36,6 @@ const createCourseImages = async (req, pathFilesImages) => {
     }
     return { status: 'created' }
   } catch (error) {
-    console.log(`\n\n${JSON.stringify(error, null, 2)}\n\n\n`)
     return { status: 'error', type: 'upload', message: 'unable to upload one or more files' }
   }
 }
