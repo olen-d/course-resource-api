@@ -26,12 +26,12 @@ const createCourseFiles = async (req, pathFilesCourses) => {
   }
 }
 
-const createCourseImages = async (req, pathFilesImages) => {
+const createCourseImages = async (req, pathFilesOriginals) => {
   const pump = util.promisify(pipeline)
   try {
     const parts = req.files()
     for await (const part of parts) {
-      const filehandle = await fsPromises.open(`${pathFilesImages}/${part.filename}`, 'w')
+      const filehandle = await fsPromises.open(`${pathFilesOriginals}/${part.filename}`, 'w')
       await pump(part.file, filehandle.createWriteStream())
     }
     return { status: 'created' }
