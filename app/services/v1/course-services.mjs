@@ -28,7 +28,6 @@ const createCourseFiles = async (req, pathFilesCourses) => {
 }
 
 const createCourseImage = async (fileName, longestSideDimension, pathFilesImages, pathFilesOriginals) => {
-  console.log(`\nSHARP\n${pathFilesOriginals} ${fileName}\n\n`)
   try {
     const metadata = await sharp(`${pathFilesOriginals}/${fileName}`).metadata()
     const { height, width, orientation } = metadata
@@ -36,7 +35,7 @@ const createCourseImage = async (fileName, longestSideDimension, pathFilesImages
     newSize.withoutEnlargement = true
     await sharp(`${pathFilesOriginals}/${fileName}`).resize(newSize).rotate().toFile(`${pathFilesImages}/img_${fileName}`)
   } catch (error) {
-    console.log(`\n${error}\n\n`)
+    console.log('ERROR:', error)
   }
 }
 
