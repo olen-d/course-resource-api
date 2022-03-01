@@ -1,4 +1,5 @@
 import * as fsPromises from 'fs/promises'
+import sharp from 'sharp'
 import { pipeline } from 'stream'
 import * as util from 'util'
 
@@ -26,13 +27,27 @@ const createCourseFiles = async (req, pathFilesCourses) => {
   }
 }
 
-const createCourseImages = async (req, pathFilesOriginals) => {
+const createCourseImage = async (fileName, longestSideDimension, pathFilesImages, pathFilesOriginals) => {
+  console.log(`\nSHARP\n${pathFilesOriginals} ${fileName}\n\n`)
+  try {
+    const metadata = await sharp(`${pathFilesOriginals}/${fileName}`).metadata()
+    const { height, width, orientation } = metadata
+    const newSize = width > height && orientation <= 4 ? { width: longestSideDimension } : { height: longestSideDimension }
+    newSize.withoutEnlargement = true
+    await sharp(`${pathFilesOriginals}/${fileName}`).resize(newSize).rotate().toFile(`${pathFilesImages}/img_${fileName}`)
+  } catch (error) {
+    console.log(`\n${error}\n\n`)
+  }
+}
+
+const createCourseImages = async (req, pathFilesImages, pathFilesOriginals) => {
   const pump = util.promisify(pipeline)
   try {
     const parts = req.files()
     for await (const part of parts) {
       const filehandle = await fsPromises.open(`${pathFilesOriginals}/${part.filename}`, 'w')
       await pump(part.file, filehandle.createWriteStream())
+      await createCourseImage(part.filename, 1920, pathFilesImages, pathFilesOriginals) // TODO: Get image size from settings
     }
     return { status: 'created' }
   } catch (error) {
