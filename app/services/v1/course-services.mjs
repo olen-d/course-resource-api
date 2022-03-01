@@ -39,7 +39,17 @@ const createCourseImage = async (fileName, longestSideDimension, pathFilesImages
   }
 }
 
-const createCourseImages = async (req, pathFilesImages, pathFilesOriginals) => {
+const createCourseImageThumbnail = async (fileName, pathFilesOriginals, pathFilesThumbnails, thumbWidth, thumbHeight ) => {
+  try {
+    const newSize = { width: thumbWidth, height: thumbHeight }
+    newSize.fit = 'cover'
+    await sharp(`${pathFilesOriginals}/${fileName}`).resize(newSize).rotate().toFile(`${pathFilesThumbnails}/thumb_${fileName}`)
+  } catch (error) {
+    console.log('ERROR:', error)
+  }
+}
+
+const createCourseImages = async (req, pathFilesImages, pathFilesOriginals, pathFilesThumbnails) => {
   const pump = util.promisify(pipeline)
   try {
     const parts = req.files()
@@ -47,6 +57,7 @@ const createCourseImages = async (req, pathFilesImages, pathFilesOriginals) => {
       const filehandle = await fsPromises.open(`${pathFilesOriginals}/${part.filename}`, 'w')
       await pump(part.file, filehandle.createWriteStream())
       await createCourseImage(part.filename, 1920, pathFilesImages, pathFilesOriginals) // TODO: Get image size from settings
+      await createCourseImageThumbnail(part.filename, pathFilesOriginals, pathFilesThumbnails, 300, 200) // TODO: Get thumbnail size from settings
     }
     return { status: 'created' }
   } catch (error) {
