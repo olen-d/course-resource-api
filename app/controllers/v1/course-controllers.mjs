@@ -42,7 +42,7 @@ async function addCourseFiles (req, reply) {
 }
 
 async function addCourseImages (req, reply) {
-  const { config: { PATH_FILES_ORIGINALS: pathFilesOriginals } } = this
+  const { config: { PATH_FILES_IMAGES: pathFilesImages, PATH_FILES_ORIGINALS: pathFilesOriginals } } = this
 
   const { verifiedAuthToken: { role, sub } } = req
   // Array of roles authorized to upload course images
@@ -50,7 +50,7 @@ async function addCourseImages (req, reply) {
   const canCreate = rolesAuthorized.indexOf(role) !== -1
 
   if (canCreate) {
-    const result = await createCourseImages(req, pathFilesOriginals)
+    const result = await createCourseImages(req, pathFilesImages, pathFilesOriginals)
     const { status } = result
 
     if (status !== 'created') {
