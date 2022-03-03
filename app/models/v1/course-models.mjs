@@ -38,7 +38,8 @@ const newCourse = async (_db, courseInfo) => {
     parking,
     creation,
     photographs,
-    courseFiles
+    courseFiles,
+    mapLink
   } = courseInfo
 
   const isValidPublishOn = validateTimestamp(publishOn)
