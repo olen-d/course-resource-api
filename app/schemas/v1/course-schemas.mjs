@@ -23,7 +23,8 @@ const addSchema = {
       'facts',
       'parking',
       'creation',
-      'courseFiles'
+      'courseFiles',
+      'mapLink'
     ],
     properties: {
       title: { type: 'string'},
@@ -73,7 +74,8 @@ const addSchema = {
         items: {
           type: 'string'
         }
-      }
+      },
+      mapLink: { type: 'string' }
     }
   }
 }
