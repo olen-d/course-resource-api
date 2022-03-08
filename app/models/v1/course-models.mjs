@@ -18,16 +18,14 @@ const newCourse = async (_db, courseInfo) => {
     publishOn,
     length,
     ascent,
-    location: {
-      latitude,
-      longitude,
-      address,
-      street,
-      city,
-      state,
-      country,
-      postCode
-    },
+    latitude,
+    longitude,
+    address,
+    street,
+    city,
+    state,
+    country,
+    postCode,
     difficulty,
     summary,
     type,
@@ -42,6 +40,33 @@ const newCourse = async (_db, courseInfo) => {
     mapLink
   } = courseInfo
 
+  const locationFields = [
+    'latitude',
+    'longitude',
+    'address',
+    'city',
+    'state',
+    'country',
+    'postcode'
+  ]
+
+  const location = {}
+  const courseInfoProcessed = {}
+
+  for (const key of Object.keys(courseInfo)) {
+    const index = locationFields.findIndex(location => location === key)
+    if (index !== -1) {
+      location[key] = courseInfo[key]
+    } else {
+      courseInfoProcessed[key] = courseInfo[key]
+    }
+  }
+
+  courseInfoProcessed.location = location
+
+  console.log(`LOCATION OBJECT\n${JSON.stringify(location, null, 2)}\n\n`)
+  console.log(`Course Info\n${JSON.stringify(courseInfoProcessed, null, 2)}\n\n`)
+
   const isValidPublishOn = validateTimestamp(publishOn)
 
   const validations = await Promise.allSettled([isValidPublishOn])
@@ -54,7 +79,7 @@ const newCourse = async (_db, courseInfo) => {
   })
 
   if (foundValidationError === -1) {
-    const data = await createCourse(_db, courseInfo)
+    const data = await createCourse(_db, courseInfoProcessed)
     // TODO: check for error and return to view level
     return { status: 'ok', data }
   } else {
