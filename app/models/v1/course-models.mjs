@@ -64,9 +64,6 @@ const newCourse = async (_db, courseInfo) => {
 
   courseInfoProcessed.location = location
 
-  console.log(`LOCATION OBJECT\n${JSON.stringify(location, null, 2)}\n\n`)
-  console.log(`Course Info\n${JSON.stringify(courseInfoProcessed, null, 2)}\n\n`)
-
   const isValidPublishOn = validateTimestamp(publishOn)
 
   const validations = await Promise.allSettled([isValidPublishOn])
