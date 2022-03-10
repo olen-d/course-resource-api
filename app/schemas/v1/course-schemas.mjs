@@ -17,11 +17,10 @@ const addSchema = {
       'latitude',
       'longitude',
       'address',
-      'street',
       'city',
       'state',
       'country',
-      'postCode',
+      'postcode',
       'difficulty',
       'summary',
       'terrain',
@@ -30,7 +29,7 @@ const addSchema = {
       'facts',
       'parking',
       'creation',
-      'courseFiles',
+      'uploadFilesCourse',
       'mapLink'
     ],
     properties: {
@@ -44,12 +43,11 @@ const addSchema = {
       ascent: { type: 'number' },
       latitude: { type: 'number' },
       longitude: { type: 'number' },
-      address: { type: 'number' },
-      street: { type: 'string' },
+      address: { type: 'string' },
       city: { type: 'string' },
       state: { type: 'string' },
       country: { type: 'string' },
-      postCode: { type: 'string'},
+      postcode: { type: 'string'},
       difficulty: { 
         enum: ['easiest', 'easy', 'more difficult', 'very difficult', 'extremely difficult']
       },
@@ -64,13 +62,13 @@ const addSchema = {
       facts: { type: 'string' },
       parking: { type: 'string' },
       creation: { type: 'string' },
-      photographs: {
+      uploadFilesImage: {
         type: 'array',
         items: {
           type: 'string'
         }
       },
-      courseFiles: {
+      uploadFilesCourse: {
         type: 'array',
         items: {
           type: 'string'
