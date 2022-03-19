@@ -46,6 +46,12 @@ const schema = {
 		PATH_FILES_THUMBNAILS: {
 			type: 'string'
 		},
+		PREFIX_FILES_IMAGES: {
+			type: 'string'
+		},
+		PREFIX_FILES_THUMBNAILS: {
+			type: 'string'
+		},
 		PORT: {
 			type: 'string',
 			default: 3300,
