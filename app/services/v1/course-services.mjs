@@ -66,6 +66,7 @@ const createCourseImages = async (req, pathFilesImages, pathFilesOriginals, path
 
 const readAllCourses = async (_db, filters) => {
   // TODO: Sanitize filters
+  // TODO: Make this a seperate helper function
   const mongoFilters = filters.reduce((obj, item) => {
     const [key] = Object.keys(item)
     const value = item[key]
@@ -83,4 +84,22 @@ const readAllCourses = async (_db, filters) => {
   }
 }
 
-export { createCourse, createCourseFiles, createCourseImages, readAllCourses }
+const readCourseBySlug = async (_db, filters) => { // The slug is included in filters
+  // TODO: Sanitize filters
+  // TODO: Make this a seperate helper function
+  const mongoFilters = filters.reduce((obj, item) => {
+    const [key] = Object.keys(item)
+    const value = item[key]
+    obj[key] = value
+    return obj
+  }, {})
+
+  try {
+    const data = await _db.collection('courses').findOne(mongoFilters)
+    return data
+  } catch (error) {
+    console.log('ERROR', error)
+  }
+}
+
+export { createCourse, createCourseFiles, createCourseImages, readAllCourses, readCourseBySlug }
