@@ -1,6 +1,6 @@
 import { createCourseFiles, createCourseImages } from '../../services/v1/course-services.mjs'
 import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
-import { getAllCourses, newCourse } from '../../models/v1/course-models.mjs'
+import { getAllCourses, getCourseBySlug, newCourse } from '../../models/v1/course-models.mjs'
 
 async function addCourse (req, reply) {
   const { mongo: { db: _db } } = this // _ObjectID is also available
@@ -114,6 +114,41 @@ async function readAllCourses (req, reply) {
   }
 }
 
+async function readPublishedCourseBySlug (req, reply) {
+  const {
+    mongo: {
+      db: _db
+    },
+    config: {
+      PATH_FILES_IMAGES: pathFilesImages,
+      PATH_FILES_ORIGINALS: pathFilesOriginals,
+      PATH_FILES_THUMBNAILS: pathFilesThumbnails,
+      PREFIX_FILES_IMAGES: prefixFilesImages,
+      PREFIX_FILES_THUMBNAILS: prefixFilesThumbnails
+    }
+  } = this
+
+  const { params: { slug } } = req
+  const filters = [{ isPublished: true }, { publishOn: { $lte: new Date() } }]
+  const result = await getCourseBySlug(_db, filters, slug)
+  const { status } = result
+
+  if ( status === 'error' ) {
+    // TODO: Figure out what the error is and send an appropriate code
+    reply
+      .code(404)
+      .send(result)
+  } else if ( status === 'ok') {
+    const paths = { pathFilesImages, pathFilesOriginals, pathFilesThumbnails}
+    const prefixes = { prefixFilesImages, prefixFilesThumbnails}
+    result.paths = { ...paths }
+    result.prefixes = { ...prefixes }
+    reply
+      .code(200)
+      .send(result)
+  }
+}
+
 async function readPublishedCourses (req, reply) {
   const {
     mongo: {
@@ -171,4 +206,11 @@ async function readPublishedCourses (req, reply) {
 //   }
 // }
 
-export { addCourse, addCourseFiles, addCourseImages, readAllCourses, readPublishedCourses }
+export {
+  addCourse,
+  addCourseFiles,
+  addCourseImages,
+  readAllCourses,
+  readPublishedCourses,
+  readPublishedCourseBySlug
+}

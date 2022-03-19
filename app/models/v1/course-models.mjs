@@ -1,9 +1,17 @@
-import { createCourse, readAllCourses } from '../../services/v1/course-services.mjs'
+import { createCourse, readAllCourses, readCourseBySlug } from '../../services/v1/course-services.mjs'
 import { processValidations, validateTimestamp } from '../../services/v1/validate-services.mjs'
 
 const getAllCourses = async (_db, filters) => {
   const data = await readAllCourses(_db, filters)
   return Array.isArray(data) && data.length > 0 ? { status: 'ok', data } : { status: 'error' }
+}
+
+const getCourseBySlug = async (_db, filters, slug) => {
+  // TODO: Santize the slug
+  filters.push({ slug })
+
+  const data = await readCourseBySlug(_db, filters)
+  return data ? { status: 'ok', data } : { status: 'error' }
 }
 
 const newCourse = async (_db, courseInfo) => {
@@ -84,4 +92,4 @@ const newCourse = async (_db, courseInfo) => {
   }
 }
 
-export { getAllCourses, newCourse}
+export { getAllCourses, getCourseBySlug, newCourse}
