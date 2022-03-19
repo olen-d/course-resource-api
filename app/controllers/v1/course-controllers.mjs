@@ -42,7 +42,15 @@ async function addCourseFiles (req, reply) {
 }
 
 async function addCourseImages (req, reply) {
-  const { config: { PATH_FILES_IMAGES: pathFilesImages, PATH_FILES_ORIGINALS: pathFilesOriginals, PATH_FILES_THUMBNAILS: pathFilesThumbnails } } = this
+  const {
+    config: {
+      PATH_FILES_IMAGES: pathFilesImages,
+      PATH_FILES_ORIGINALS: pathFilesOriginals,
+      PATH_FILES_THUMBNAILS: pathFilesThumbnails,
+      PREFIX_FILES_IMAGES: prefixFilesImages,
+      PREFIX_FILES_THUMBNAILS: prefixFilesThumbnails
+    }
+  } = this
 
   const { verifiedAuthToken: { role, sub } } = req
   // Array of roles authorized to upload course images
@@ -50,7 +58,7 @@ async function addCourseImages (req, reply) {
   const canCreate = rolesAuthorized.indexOf(role) !== -1
 
   if (canCreate) {
-    const result = await createCourseImages(req, pathFilesImages, pathFilesOriginals, pathFilesThumbnails)
+    const result = await createCourseImages(req, pathFilesImages, pathFilesOriginals, pathFilesThumbnails, prefixFilesImages, prefixFilesThumbnails)
     const { status } = result
 
     if (status !== 'created') {
@@ -62,7 +70,18 @@ async function addCourseImages (req, reply) {
 }
 
 async function readAllCourses (req, reply) {
-  const { mongo: { db: _db } } = this
+  const {
+    mongo: {
+      db: _db
+    },
+    config: {
+      PATH_FILES_IMAGES: pathFilesImages,
+      PATH_FILES_ORIGINALS: pathFilesOriginals,
+      PATH_FILES_THUMBNAILS: pathFilesThumbnails,
+      PREFIX_FILES_IMAGES: prefixFilesImages,
+      PREFIX_FILES_THUMBNAILS: prefixFilesThumbnails
+    }
+  } = this
 
   const { verifiedAuthToken: { role, sub }, } = req
 
@@ -85,6 +104,10 @@ async function readAllCourses (req, reply) {
       .code(404)
       .send(result)
   } else if ( status === 'ok') {
+    const paths = { pathFilesImages, pathFilesOriginals, pathFilesThumbnails}
+    const prefixes = { prefixFilesImages, prefixFilesThumbnails}
+    result.paths = { ...paths }
+    result.prefixes = { ...prefixes }
     reply
       .code(200)
       .send(result)
@@ -92,7 +115,18 @@ async function readAllCourses (req, reply) {
 }
 
 async function readPublishedCourses (req, reply) {
-  const { mongo: { db: _db } } = this
+  const {
+    mongo: {
+      db: _db
+    },
+    config: {
+      PATH_FILES_IMAGES: pathFilesImages,
+      PATH_FILES_ORIGINALS: pathFilesOriginals,
+      PATH_FILES_THUMBNAILS: pathFilesThumbnails,
+      PREFIX_FILES_IMAGES: prefixFilesImages,
+      PREFIX_FILES_THUMBNAILS: prefixFilesThumbnails
+    }
+  } = this
   const filters = [{ isPublished: true }, { publishOn: { $lte: new Date() } }]
   const result = await getAllCourses(_db, filters)
   const { status } = result
@@ -103,6 +137,10 @@ async function readPublishedCourses (req, reply) {
       .code(404)
       .send(result)
   } else if ( status === 'ok') {
+    const paths = { pathFilesImages, pathFilesOriginals, pathFilesThumbnails}
+    const prefixes = { prefixFilesImages, prefixFilesThumbnails}
+    result.paths = { ...paths }
+    result.prefixes = { ...prefixes }
     reply
       .code(200)
       .send(result)

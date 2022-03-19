@@ -27,37 +27,36 @@ const createCourseFiles = async (req, pathFilesCourses) => {
   }
 }
 
-const createCourseImage = async (fileName, longestSideDimension, pathFilesImages, pathFilesOriginals) => {
+const createCourseImage = async (fileName, longestSideDimension, pathFilesImages, pathFilesOriginals, prefixFilesImages) => {
   try {
     const metadata = await sharp(`${pathFilesOriginals}/${fileName}`).metadata()
     const { height, width, orientation } = metadata
     const newSize = width > height && orientation <= 4 ? { width: longestSideDimension } : { height: longestSideDimension }
     newSize.withoutEnlargement = true
-    await sharp(`${pathFilesOriginals}/${fileName}`).resize(newSize).rotate().toFile(`${pathFilesImages}/img_${fileName}`)
+    await sharp(`${pathFilesOriginals}/${fileName}`).resize(newSize).rotate().toFile(`${pathFilesImages}/${prefixFilesImages}${fileName}`)
   } catch (error) {
     console.log('ERROR:', error)
   }
 }
 
-const createCourseImageThumbnail = async (fileName, pathFilesOriginals, pathFilesThumbnails, thumbWidth, thumbHeight ) => {
+const createCourseImageThumbnail = async (fileName, pathFilesOriginals, pathFilesThumbnails, prefixFilesThumbnails, thumbWidth, thumbHeight ) => {
   try {
     const newSize = { width: thumbWidth, height: thumbHeight }
     newSize.fit = 'cover'
-    await sharp(`${pathFilesOriginals}/${fileName}`).resize(newSize).rotate().toFile(`${pathFilesThumbnails}/thumb_${fileName}`)
+    await sharp(`${pathFilesOriginals}/${fileName}`).resize(newSize).rotate().toFile(`${pathFilesThumbnails}/${prefixFilesThumbnails}${fileName}`)
   } catch (error) {
     console.log('ERROR:', error)
   }
 }
-
-const createCourseImages = async (req, pathFilesImages, pathFilesOriginals, pathFilesThumbnails) => {
+const createCourseImages = async (req, pathFilesImages, pathFilesOriginals, pathFilesThumbnails, prefixFilesImages, prefixFilesThumbnails) => {
   const pump = util.promisify(pipeline)
   try {
     const parts = req.files()
     for await (const part of parts) {
       const filehandle = await fsPromises.open(`${pathFilesOriginals}/${part.filename}`, 'w')
       await pump(part.file, filehandle.createWriteStream())
-      await createCourseImage(part.filename, 1920, pathFilesImages, pathFilesOriginals) // TODO: Get image size from settings
-      await createCourseImageThumbnail(part.filename, pathFilesOriginals, pathFilesThumbnails, 300, 200) // TODO: Get thumbnail size from settings
+      await createCourseImage(part.filename, 1920, pathFilesImages, pathFilesOriginals, prefixFilesImages) // TODO: Get image size from settings
+      await createCourseImageThumbnail(part.filename, pathFilesOriginals, pathFilesThumbnails, prefixFilesThumbnails, 300, 200) // TODO: Get thumbnail size from settings
     }
     return { status: 'created' }
   } catch (error) {
