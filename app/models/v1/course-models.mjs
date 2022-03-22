@@ -7,11 +7,13 @@ const getAllCourses = async (_db, filters) => {
 }
 
 const getCourseBySlug = async (_db, filters, slug) => {
+  const results = []
   // TODO: Santize the slug
   filters.push({ slug })
 
   const data = await readCourseBySlug(_db, filters)
-  return data ? { status: 'ok', data } : { status: 'error' }
+  results.push({ ...data })
+  return data ? { status: 'ok', data: results } : { status: 'error' }
 }
 
 const newCourse = async (_db, courseInfo) => {
