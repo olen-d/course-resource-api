@@ -3,10 +3,12 @@ import sharp from 'sharp'
 import { pipeline } from 'stream'
 import * as util from 'util'
 
-const createCourse = async (_db, newCourse) => {
+const createCourse = async (_db, _ObjectId, newCourse) => {
   try {
-    const { publishOn: publishOnValue } = newCourse
+    const { creatorId: creatorIdValue, publishOn: publishOnValue, ownerId: ownerIdValue } = newCourse
+    newCourse.creatorId = _ObjectId(creatorIdValue) // Store creatorId as an ObjectId, useful for doing $lookup
     newCourse.publishOn = new Date(publishOnValue) // MongoDB store in native date format
+    newCourse.ownerId = _ObjectId(ownerIdValue)
     const result = await _db.collection('courses').insertOne(newCourse)
     return result
   } catch (error) {
@@ -95,7 +97,9 @@ const readCourseBySlug = async (_db, filters) => { // The slug is included in fi
   }, {})
 
   try {
-    const data = await _db.collection('courses').findOne(mongoFilters)
+    // const data = await _db.collection('courses').aggregate([{ $lookup: { from: 'users', localField: 'creatorId', foreignField: '_id', as: 'userTest' } }]).findOne(mongoFilters)
+    const cursor = await _db.collection('courses').aggregate([{ $match: mongoFilters }, { $lookup: { from: 'users', localField: 'creatorId', foreignField: '_id', as: 'userFullname' } }, { $project: { userFullname: { _id:0, emailAddress: 0, passwordHash: 0, role: 0, username: 0, createdBy: 0 } } }])
+    const data = await cursor.limit(1).toArray()
     return data
   } catch (error) {
     console.log('ERROR', error)
