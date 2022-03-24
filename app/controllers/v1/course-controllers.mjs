@@ -3,7 +3,7 @@ import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
 import { getAllCourses, getCourseBySlug, newCourse } from '../../models/v1/course-models.mjs'
 
 async function addCourse (req, reply) {
-  const { mongo: { db: _db } } = this // _ObjectID is also available
+  const { mongo: { db: _db, ObjectId: _ObjectId } } = this
 
   const { body, verifiedAuthToken: { role, sub }, } = req
   // Array of roles authorized to create courses
@@ -14,7 +14,7 @@ async function addCourse (req, reply) {
     const trimmed = trimAll(body)
     const courseInfo = sanitizeAll(trimmed)
     // TODO: Check that the userId in the client submittal equals the userId from the token (i.e. sub)
-    const result = await newCourse(_db, courseInfo)
+    const result = await newCourse(_db, _ObjectId, courseInfo)
     return result
   } else {
     throw new Error('current role cannot create a course')

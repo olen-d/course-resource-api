@@ -7,16 +7,20 @@ const getAllCourses = async (_db, filters) => {
 }
 
 const getCourseBySlug = async (_db, filters, slug) => {
-  const results = []
   // TODO: Santize the slug
   filters.push({ slug })
 
   const data = await readCourseBySlug(_db, filters)
-  results.push({ ...data })
-  return data ? { status: 'ok', data: results } : { status: 'error' }
+  if(Array.isArray(data) && data.length > 0) {
+    const [{userFullname: [{ firstName, lastName }] }] = data
+    data[0].userFullname = `${firstName} ${lastName}`
+    return { status: 'ok', data }
+  } else {
+    return { status: 'error' }
+  }
 }
 
-const newCourse = async (_db, courseInfo) => {
+const newCourse = async (_db, _ObjectId, courseInfo) => {
 
   // new Date()
   const {
@@ -86,7 +90,7 @@ const newCourse = async (_db, courseInfo) => {
   })
 
   if (foundValidationError === -1) {
-    const data = await createCourse(_db, courseInfoProcessed)
+    const data = await createCourse(_db, _ObjectId, courseInfoProcessed)
     // TODO: check for error and return to view level
     return { status: 'ok', data }
   } else {
