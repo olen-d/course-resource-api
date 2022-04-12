@@ -97,7 +97,6 @@ const readCourseBySlug = async (_db, filters) => { // The slug is included in fi
   }, {})
 
   try {
-    // const data = await _db.collection('courses').aggregate([{ $lookup: { from: 'users', localField: 'creatorId', foreignField: '_id', as: 'userTest' } }]).findOne(mongoFilters)
     const cursor = await _db.collection('courses').aggregate([{ $match: mongoFilters }, { $lookup: { from: 'users', localField: 'creatorId', foreignField: '_id', as: 'userFullname' } }, { $project: { userFullname: { _id:0, emailAddress: 0, passwordHash: 0, role: 0, username: 0, createdBy: 0 } } }])
     const data = await cursor.limit(1).toArray()
     return data
@@ -106,4 +105,22 @@ const readCourseBySlug = async (_db, filters) => { // The slug is included in fi
   }
 }
 
-export { createCourse, createCourseFiles, createCourseImages, readAllCourses, readCourseBySlug }
+const updateCourse = async (_db, courseId, courseInfo) => {
+ try {
+   const filter = { _id: courseId }
+   const updateDoc = courseInfo
+   const result = await _db.collection('courses').updateOne(filter, updateDoc)
+   return result
+ } catch (error) {
+   throw new Error(error)
+ }
+}
+
+export {
+  createCourse,
+  createCourseFiles,
+  createCourseImages,
+  readAllCourses,
+  readCourseBySlug,
+  updateCourse
+}
