@@ -1,5 +1,38 @@
-import { createCourse, readAllCourses, readCourseBySlug } from '../../services/v1/course-services.mjs'
+import { createCourse, readAllCourses, readCourseBySlug, updateCourse } from '../../services/v1/course-services.mjs'
 import { processValidations, validateTimestamp } from '../../services/v1/validate-services.mjs'
+
+const changeCourse = async (_db, _ObjectId, courseId, courseInfo) => {
+  const locationFields = [
+    'latitude',
+    'longitude',
+    'address',
+    'city',
+    'state',
+    'country',
+    'postcode'
+  ]
+
+  const courseInfoProcessed = { $set: {} }
+  const courseObjId = _ObjectId(courseId)
+
+  for (const key of Object.keys(courseInfo)) {
+    const index = locationFields.findIndex(location => location === key)
+    if (index !== -1) {
+      courseInfoProcessed.$set[`location.${[key]}`] = courseInfo[key]
+    } else {
+      courseInfoProcessed.$set[key] = courseInfo[key]
+    }
+  }
+
+  try {
+    const data = await updateCourse(_db, courseObjId, courseInfoProcessed)
+    // TODO: check for error and return to view level
+    return { status: 'ok', data }
+  } catch (error) {
+    const { message } = error
+    return { status: 'error', message }
+  }
+}
 
 const getAllCourses = async (_db, filters) => {
   const data = await readAllCourses(_db, filters)
@@ -98,4 +131,4 @@ const newCourse = async (_db, _ObjectId, courseInfo) => {
   }
 }
 
-export { getAllCourses, getCourseBySlug, newCourse}
+export { changeCourse, getAllCourses, getCourseBySlug, newCourse}

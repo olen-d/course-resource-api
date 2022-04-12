@@ -1,6 +1,6 @@
 import { createCourseFiles, createCourseImages } from '../../services/v1/course-services.mjs'
 import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
-import { getAllCourses, getCourseBySlug, newCourse } from '../../models/v1/course-models.mjs'
+import { changeCourse, getAllCourses, getCourseBySlug, newCourse } from '../../models/v1/course-models.mjs'
 
 async function addCourse (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
@@ -66,6 +66,24 @@ async function addCourseImages (req, reply) {
     } else {
       reply.code(201).send(result)
     }
+  }
+}
+
+async function updateCourse (req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId} } = this
+  const { body, params: { id: courseId }, verifiedAuthToken: { role, sub } } = req
+
+  const rolesAuthorized = ['author', 'publisher', 'admin', 'superadmin']
+  const canUpdate = rolesAuthorized.indexOf(role) !== -1
+
+  if (canUpdate) {
+    const trimmed = trimAll(body)
+    const courseInfo = sanitizeAll(trimmed)
+    // TODO: Check that the userId in the client submittal equals the userId from the token (i.e. sub)
+    const result = await changeCourse(_db, _ObjectId, courseId, courseInfo)
+    return result
+  } else {
+    throw new Error('current role cannot update a course')
   }
 }
 
@@ -257,5 +275,6 @@ export {
   readAllCourses,
   readCourseBySlugAll,
   readCourseBySlugPublished,
-  readPublishedCourses
+  readPublishedCourses,
+  updateCourse
 }

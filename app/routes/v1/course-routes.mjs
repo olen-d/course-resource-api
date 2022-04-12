@@ -6,6 +6,7 @@ const routes = (app, opts, done) => {
   app.get('/all', { schema: schemas.readAllSchema, preHandler: app.auth([app.verifyJWT]) }, courseControllers.readAllCourses)
   app.get('/:slug', {}, courseControllers.readCourseBySlugPublished)
   app.get('/:slug/all', { preHandler: app.auth([app.verifyJWT]) }, courseControllers.readCourseBySlugAll)
+  app.patch('/course/:id', { preHandler: app.auth([app.verifyJWT]) }, courseControllers.updateCourse)
   app.post('/course', { schema: schemas.addSchema, preHandler: app.auth([app.verifyJWT]) }, courseControllers.addCourse)
   app.post('/files', { schema: schemas.addCourseFilesSchema, preHandler: app.auth([app.verifyJWT]) }, courseControllers.addCourseFiles)
   app.post('/images', { schema: schemas.addCourseImagesSchema, preHandler: app.auth([app.verifyJWT]) }, courseControllers.addCourseImages)
