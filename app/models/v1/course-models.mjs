@@ -15,6 +15,8 @@ const changeCourse = async (_db, _ObjectId, courseId, courseInfo) => {
   const courseInfoProcessed = { $set: {} }
   const courseObjId = _ObjectId(courseId)
 
+  if (courseInfo.publishOn) {courseInfo.publishOn = new Date(courseInfo.publishOn)} // MongoDB store in native date format
+
   for (const key of Object.keys(courseInfo)) {
     const index = locationFields.findIndex(location => location === key)
     if (index !== -1) {
