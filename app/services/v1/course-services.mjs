@@ -109,6 +109,7 @@ const updateCourse = async (_db, courseId, courseInfo) => {
  try {
    const filter = { _id: courseId }
    const updateDoc = courseInfo
+
    const result = await _db.collection('courses').updateOne(filter, updateDoc)
    return result
  } catch (error) {
