@@ -1,3 +1,5 @@
+import { micromark } from 'micromark'
+import { gfm, gfmHtml } from 'micromark-extension-gfm'
 import { createCourse, readAllCourses, readCourseBySlug, updateCourse } from '../../services/v1/course-services.mjs'
 import { processValidations, validateTimestamp } from '../../services/v1/validate-services.mjs'
 
@@ -47,7 +49,12 @@ const getCourseBySlug = async (_db, filters, slug) => {
 
   const data = await readCourseBySlug(_db, filters)
   if(Array.isArray(data) && data.length > 0) {
-    const [{userFullname: [{ firstName, lastName }] }] = data
+    const [{ summary, userFullname: [{ firstName, lastName }] }] = data
+    const summaryHtml = micromark(summary, {
+      extensions: [gfm()],
+      htmlExtensions: [gfmHtml()]
+    })
+    data[0].summaryHtml = summaryHtml
     data[0].userFullname = `${firstName} ${lastName}`
     return { status: 'ok', data }
   } else {
