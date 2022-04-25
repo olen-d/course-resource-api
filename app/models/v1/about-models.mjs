@@ -1,6 +1,25 @@
-import { createAboutItem } from '../../services/v1/about-services.mjs'
+import { micromark } from 'micromark'
+import { gfm, gfmHtml } from 'micromark-extension-gfm'
+import { createAboutItem, readAllAboutItems } from '../../services/v1/about-services.mjs'
 import { validateContent, validateTitle } from '../../services/v1/validate-about-services.mjs'
 import { processValidations } from '../../services/v1/validate-services.mjs'
+
+const getAllAboutItems = async _db => {
+  const data = await readAllAboutItems(_db)
+  if (Array.isArray(data) && data.length > 0) {
+    const dataProcessed = data.map(element => {
+      const contentHtml = micromark(element.content, {
+        extensions: [gfm()],
+        htmlExtensions: [gfmHtml()]
+      })
+      element.contentHtml = contentHtml
+      return element
+    })
+    return { status: 'ok', data: dataProcessed } 
+  } else {
+    return { status: 'error' }
+  }
+}
 
 const newAboutItem = async (_db, aboutItemInfo) => {
 
@@ -27,4 +46,4 @@ const newAboutItem = async (_db, aboutItemInfo) => {
   }
 }
 
-export { newAboutItem }
+export { newAboutItem, getAllAboutItems }
