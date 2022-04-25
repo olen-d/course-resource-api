@@ -1,5 +1,5 @@
 import { sanitizeAll, trimAll } from "../../services/v1/input-services.mjs";
-import { newAboutItem } from "../../models/v1/about-models.mjs";
+import { newAboutItem, getAllAboutItems } from "../../models/v1/about-models.mjs";
 
 async function addAboutItem (req, reply) {
   const { mongo: { db: _db } } = this
@@ -20,4 +20,22 @@ async function addAboutItem (req, reply) {
   }
 }
 
-export { addAboutItem }
+async function readAllAboutItems( req, reply) {
+  const { mongo: { db: _db } } = this
+
+  const result = await getAllAboutItems(_db)
+  const { status } = result
+
+  if ( status === 'error' ) {
+    // TODO: Figure out what the error is and send an appropriate code
+    reply
+      .code(404)
+      .send(result)
+  } else if ( status === 'ok') {
+    reply
+      .code(200)
+      .send(result)
+  }
+}
+
+export { addAboutItem, readAllAboutItems }
