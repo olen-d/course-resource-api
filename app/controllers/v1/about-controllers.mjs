@@ -1,5 +1,5 @@
 import { sanitizeAll, trimAll } from "../../services/v1/input-services.mjs";
-import { changeAboutItem, newAboutItem, getAllAboutItems } from "../../models/v1/about-models.mjs";
+import { changeAboutItem, getAboutItemBySlug, getAllAboutItems, newAboutItem } from "../../models/v1/about-models.mjs";
 
 async function addAboutItem (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
@@ -17,6 +17,35 @@ async function addAboutItem (req, reply) {
     return result
   } else {
     throw new Error('current role cannot create a course')
+  }
+}
+
+async function readAboutItemBySlugAll (req, reply) {
+  const { mongo: { db: _db } } = this
+
+  const { verifiedAuthToken: { role, sub }, } = req
+
+  const filters = []
+
+  if (role === 'superadmin') {
+    filters.push({})
+  } else if (role === 'siteadmin') {
+    filters.push({ ownerId: sub })
+  }
+
+  const { params: { slug } } = req
+  const result = await getAboutItemBySlug(_db, filters, slug)
+  const { status } = result
+
+  if ( status === 'error' ) {
+    // TODO: Figure out what the error is and send an appropriate code
+    reply
+      .code(404)
+      .send(result)
+  } else if ( status === 'ok') {
+    reply
+      .code(200)
+      .send(result)
   }
 }
 
@@ -56,4 +85,4 @@ async function updateAboutItem (req, reply) {
   }
 }
 
-export { addAboutItem, readAllAboutItems, updateAboutItem }
+export { addAboutItem, readAboutItemBySlugAll, readAllAboutItems, updateAboutItem }
