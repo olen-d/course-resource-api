@@ -1,8 +1,26 @@
 import { micromark } from 'micromark'
 import { gfm, gfmHtml } from 'micromark-extension-gfm'
-import { createAboutItem, readAllAboutItems } from '../../services/v1/about-services.mjs'
+import { createAboutItem, readAllAboutItems, updateAboutItem } from '../../services/v1/about-services.mjs'
 import { validateContent, validateTitle } from '../../services/v1/validate-about-services.mjs'
 import { processValidations } from '../../services/v1/validate-services.mjs'
+
+const changeAboutItem = async (_db, _ObjectId, aboutItemId, aboutItemInfo) => {
+  const aboutItemInfoProcessed = { $set: {} }
+  const aboutItemObjId = _ObjectId(aboutItemId)
+
+  for (const key of Object.keys(aboutItemInfo)) {
+    aboutItemInfoProcessed.$set[key] = aboutItemInfo[key]
+  }
+
+  try {
+    const data = await updateAboutItem(_db, aboutItemObjId, aboutItemInfoProcessed)
+    // TODO: check for error and return to view level
+    return { status: 'ok', data }
+  } catch (error) {
+    const { message } = error
+    return { status: 'error', message }
+  }
+}
 
 const getAllAboutItems = async _db => {
   const data = await readAllAboutItems(_db)
@@ -46,4 +64,4 @@ const newAboutItem = async (_db, _ObjectId, aboutItemInfo) => {
   }
 }
 
-export { newAboutItem, getAllAboutItems }
+export { changeAboutItem, getAllAboutItems, newAboutItem }

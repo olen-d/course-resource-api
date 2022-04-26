@@ -1,5 +1,5 @@
 import { sanitizeAll, trimAll } from "../../services/v1/input-services.mjs";
-import { newAboutItem, getAllAboutItems } from "../../models/v1/about-models.mjs";
+import { changeAboutItem, newAboutItem, getAllAboutItems } from "../../models/v1/about-models.mjs";
 
 async function addAboutItem (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
@@ -38,4 +38,22 @@ async function readAllAboutItems( req, reply) {
   }
 }
 
-export { addAboutItem, readAllAboutItems }
+async function updateAboutItem (req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId} } = this
+  const { body, params: { id: aboutItemId }, verifiedAuthToken: { role, sub } } = req
+
+  const rolesAuthorized = ['siteadmin', 'superadmin']
+  const canUpdate = rolesAuthorized.indexOf(role) !== -1
+
+  if (canUpdate) {
+    const trimmed = trimAll(body)
+    const aboutItemInfo = sanitizeAll(trimmed)
+    // TODO: Check that the userId in the client submittal equals the userId from the token (i.e. sub)
+    const result = await changeAboutItem(_db, _ObjectId, aboutItemId, aboutItemInfo)
+    return result
+  } else {
+    throw new Error('current role cannot update an about item')
+  }
+}
+
+export { addAboutItem, readAllAboutItems, updateAboutItem }
