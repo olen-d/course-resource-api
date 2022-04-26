@@ -1,5 +1,8 @@
-const createAboutItem = async (_db, aboutItem) => {
+const createAboutItem = async (_db, _ObjectId, aboutItem) => {
   try {
+    const { creatorId: creatorIdValue, ownerId: ownerIdValue } = aboutItem
+    aboutItem.creatorId = _ObjectId(creatorIdValue) // Store creatorId as an ObjectId, useful for doing $lookup
+    aboutItem.ownerId = _ObjectId(ownerIdValue)
     const result = await _db.collection('about').insertOne(aboutItem)
     return result
   } catch (error) {
