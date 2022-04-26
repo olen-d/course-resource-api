@@ -1,6 +1,6 @@
 import { micromark } from 'micromark'
 import { gfm, gfmHtml } from 'micromark-extension-gfm'
-import { createAboutItem, readAllAboutItems, updateAboutItem } from '../../services/v1/about-services.mjs'
+import { createAboutItem, readAboutItemBySlug, readAllAboutItems, updateAboutItem } from '../../services/v1/about-services.mjs'
 import { validateContent, validateTitle } from '../../services/v1/validate-about-services.mjs'
 import { processValidations } from '../../services/v1/validate-services.mjs'
 
@@ -19,6 +19,26 @@ const changeAboutItem = async (_db, _ObjectId, aboutItemId, aboutItemInfo) => {
   } catch (error) {
     const { message } = error
     return { status: 'error', message }
+  }
+}
+
+const getAboutItemBySlug = async (_db, filters, slug) => {
+  // TODO: Santize the slug
+  filters.push({ slug })
+
+  const data = await readAboutItemBySlug(_db, filters)
+  if(Array.isArray(data) && data.length > 0) {
+    console.log(`\n\n${JSON.stringify(data, null, 2)}\n\n`)
+    const [{ content, userFullname: [{ firstName, lastName }] }] = data
+    const contentHtml = micromark(content, {
+      extensions: [gfm()],
+      htmlExtensions: [gfmHtml()]
+    })
+    data[0].contentHtml = contentHtml
+    data[0].userFullname = `${firstName} ${lastName}`
+    return { status: 'ok', data }
+  } else {
+    return { status: 'error' }
   }
 }
 
@@ -64,4 +84,4 @@ const newAboutItem = async (_db, _ObjectId, aboutItemInfo) => {
   }
 }
 
-export { changeAboutItem, getAllAboutItems, newAboutItem }
+export { changeAboutItem, getAboutItemBySlug, getAllAboutItems, newAboutItem }
