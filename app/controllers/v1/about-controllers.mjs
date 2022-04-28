@@ -49,10 +49,38 @@ async function readAboutItemBySlugAll (req, reply) {
   }
 }
 
-async function readAllAboutItems( req, reply) {
+async function readAllAboutItems (req, reply) {
   const { mongo: { db: _db } } = this
 
-  const result = await getAllAboutItems(_db)
+  const { verifiedAuthToken: { role, sub }, } = req
+  const filters = []
+
+  if (role === 'superadmin') {
+    filters.push({})
+  } else if (role === 'siteadmin') {
+    filters.push({ ownerId: sub })
+  }
+
+  const result = await getAllAboutItems(_db, filters)
+  const { status } = result
+
+  if ( status === 'error' ) {
+    // TODO: Figure out what the error is and send an appropriate code
+    reply
+      .code(404)
+      .send(result)
+  } else if ( status === 'ok') {
+    reply
+      .code(200)
+      .send(result)
+  }
+}
+
+async function readPublishedAboutItems (req, reply) {
+  const { mongo: { db: _db } } = this
+
+  const filters = [{ isPublished: true }]
+  const result = await getAllAboutItems(_db, filters)
   const { status } = result
 
   if ( status === 'error' ) {
@@ -85,4 +113,4 @@ async function updateAboutItem (req, reply) {
   }
 }
 
-export { addAboutItem, readAboutItemBySlugAll, readAllAboutItems, updateAboutItem }
+export { addAboutItem, readAboutItemBySlugAll, readAllAboutItems, readPublishedAboutItems, updateAboutItem }

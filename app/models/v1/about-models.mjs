@@ -42,8 +42,8 @@ const getAboutItemBySlug = async (_db, filters, slug) => {
   }
 }
 
-const getAllAboutItems = async _db => {
-  const data = await readAllAboutItems(_db)
+const getAllAboutItems = async (_db, filters) => {
+  const data = await readAllAboutItems(_db, filters)
   if (Array.isArray(data) && data.length > 0) {
     const dataProcessed = data.map(element => {
       const contentHtml = micromark(element.content, {

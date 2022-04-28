@@ -29,8 +29,17 @@ const readAboutItemBySlug = async (_db, filters) => { // The slug is included in
   }
 }
 
-const readAllAboutItems = async _db => {
-  const cursor = await _db.collection('about').find()
+const readAllAboutItems = async (_db, filters) => {
+  // TODO: Sanitize filters
+  // TODO: Make this a seperate helper function
+  const mongoFilters = filters.reduce((obj, item) => {
+    const [key] = Object.keys(item)
+    const value = item[key]
+    obj[key] = value
+    return obj
+  }, {})
+
+  const cursor = await _db.collection('about').find(mongoFilters).sort({ 'order': 1 })
 
   try {
     const data = await cursor.toArray()
