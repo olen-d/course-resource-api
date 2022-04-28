@@ -28,7 +28,6 @@ const getAboutItemBySlug = async (_db, filters, slug) => {
 
   const data = await readAboutItemBySlug(_db, filters)
   if(Array.isArray(data) && data.length > 0) {
-    console.log(`\n\n${JSON.stringify(data, null, 2)}\n\n`)
     const [{ content, userFullname: [{ firstName, lastName }] }] = data
     const contentHtml = micromark(content, {
       extensions: [gfm()],
