@@ -13,6 +13,7 @@ import { routes as aboutRoutes } from './app/routes/v1/about-routes.mjs'
 import { routes as authRoutes } from './app/routes/v1/auth-routes.mjs'
 import { routes as courseRoutes } from './app/routes/v1/course-routes.mjs'
 import { routes as userRoutes } from './app/routes/v1/user-routes.mjs'
+import { routes as welcomeRoutes } from './app/routes/v1/welcome-routes.mjs'
 
 // Other services
 import { verifyToken } from './app/services/v1/jsonwebtoken-services.mjs' // Used instead of fastify-jwt because both authorization and refresh tokens need to be signed and verified
@@ -152,7 +153,8 @@ const initialize = async () => {
 	app.register(aboutRoutes, { prefix: 'api/v1/about'})
 	app.register(authRoutes, { prefix: 'api/v1/auth'})
 	app.register(courseRoutes, { prefix: 'api/v1/courses' })
-	app.register(userRoutes, {prefix: 'api/v1/users' })
+	app.register(userRoutes, { prefix: 'api/v1/users' })
+	app.register(welcomeRoutes, { prefix: 'api/v1/welcome'})
 }
 
 initialize();
