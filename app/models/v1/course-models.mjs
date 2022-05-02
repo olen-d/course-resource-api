@@ -1,6 +1,6 @@
 import { micromark } from 'micromark'
 import { gfm, gfmHtml } from 'micromark-extension-gfm'
-import { createCourse, readAllCourses, readCourseBySlug, updateCourse } from '../../services/v1/course-services.mjs'
+import { createCourse, deleteCourse, readAllCourses, readCourseBySlug, updateCourse } from '../../services/v1/course-services.mjs'
 import { processValidations, validateTimestamp } from '../../services/v1/validate-services.mjs'
 
 const changeCourse = async (_db, _ObjectId, courseId, courseInfo) => {
@@ -140,4 +140,22 @@ const newCourse = async (_db, _ObjectId, courseInfo) => {
   }
 }
 
-export { changeCourse, getAllCourses, getCourseBySlug, newCourse}
+const removeCourse = async (_db, _ObjectId, courseId) => {
+  const courseObjId = _ObjectId(courseId)
+
+  try {
+    const data = await deleteCourse(_db, courseObjId)
+    // TODO: check for error and return to view level
+    return { status: 'ok', data }
+  } catch (error) {
+    return { status: 'error', message }
+  }
+}
+
+export {
+  changeCourse,
+  getAllCourses,
+  getCourseBySlug,
+  newCourse,
+  removeCourse
+}

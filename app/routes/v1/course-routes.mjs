@@ -2,6 +2,7 @@ import * as courseControllers from '../../controllers/v1/course-controllers.mjs'
 import * as schemas from '../../schemas/v1/course-schemas.mjs'
 
 const routes = (app, opts, done) => {
+  app.delete('/course/:id', { preHandler: app.auth([app.verifyJWT]) }, courseControllers.purgeCourse)
   app.get('/', { schema: schemas.readPublishedSchema }, courseControllers.readPublishedCourses)
   app.get('/all', { schema: schemas.readAllSchema, preHandler: app.auth([app.verifyJWT]) }, courseControllers.readAllCourses)
   app.get('/:slug', {}, courseControllers.readCourseBySlugPublished)
