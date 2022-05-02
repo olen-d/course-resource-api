@@ -2,6 +2,7 @@ import * as fsPromises from 'fs/promises'
 import sharp from 'sharp'
 import { pipeline } from 'stream'
 import * as util from 'util'
+import { getCourseBySlug } from '../../models/v1/course-models.mjs'
 
 const createCourse = async (_db, _ObjectId, newCourse) => {
   try {
@@ -66,6 +67,18 @@ const createCourseImages = async (req, pathFilesImages, pathFilesOriginals, path
   }
 }
 
+const deleteCourse = async (_db, courseId) => {
+  const filter = { _id: courseId }
+
+  try {
+    const result = await _db.collection('courses').findOneAndDelete(filter)
+    return result
+  } catch (error) {
+    console.log(`\n\ncourse-services ERROR:\n${error}\n\n\n`)
+    throw new Error(error)
+  }
+}
+
 const readAllCourses = async (_db, filters) => {
   // TODO: Sanitize filters
   // TODO: Make this a seperate helper function
@@ -121,6 +134,7 @@ export {
   createCourse,
   createCourseFiles,
   createCourseImages,
+  deleteCourse,
   readAllCourses,
   readCourseBySlug,
   updateCourse
