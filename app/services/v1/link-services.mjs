@@ -30,4 +30,23 @@ const readAllLinks = async (_db, filters) => {
   }
 }
 
-export { createLink, readAllLinks }
+const readLinkById = async (_db, filters) => { // The id is included in filters
+  // TODO: Sanitize filters
+  // TODO: Make this a seperate helper function
+  const mongoFilters = filters.reduce((obj, item) => {
+    const [key] = Object.keys(item)
+    const value = item[key]
+    obj[key] = value
+    return obj
+  }, {})
+
+  try {
+    const cursor = await _db.collection('links').aggregate([{ $match: mongoFilters }, { $lookup: { from: 'users', localField: 'creatorId', foreignField: '_id', as: 'userFullname' } }, { $project: { userFullname: { _id:0, emailAddress: 0, passwordHash: 0, role: 0, username: 0, createdBy: 0 } } }])
+    const data = await cursor.limit(1).toArray()
+    return data
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+export { createLink, readAllLinks, readLinkById }
