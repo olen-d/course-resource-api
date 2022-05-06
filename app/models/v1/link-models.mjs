@@ -1,30 +1,19 @@
-import { createLink, readAllLinks, readLinkById } from '../../services/v1/link-services.mjs'
+import { createLink, readAllLinks, readLinkById, updateLink } from '../../services/v1/link-services.mjs'
 
-const newLink = async (_db, _ObjectId, linkInfo) => {
+const changeLink= async (_db, linkInfo, objId) => {
+  const linkInfoProcessed = { $set: {} }
 
-  // const { anchor, category, description, uri } = linkInfo
+  for (const key of Object.keys(linkInfo)) {
+    linkInfoProcessed.$set[key] = linkInfo[key]
+  }
 
-  // const isValidAnchor = validateAnchor(anchor)
-  // const isValidCategory = validateCategory(category)
-  // const isValidDescription = validateDescription(description)
-  // const isValidUri = validateUri(uri)
-
-  // const validations = await Promise.allSettled([isValidAnchor, isValidCategory, isValidDescription, isValidUri])
-  // const fields = ['anchor', 'category', 'description', 'uri'] // These need to be in the same order as Promise.allSettled above
-
-  // // Loop through validations
-  // const validationResults = await processValidations(fields, validations)
-  // const foundValidationError = validationResults.findIndex((field) => {
-  //   if (field.isValid === false) { return true }
-  // })
-
-  const foundValidationError = - 1 // Delete this when the validations are completed
-  if (foundValidationError === -1) {
-    const data = await createLink(_db, _ObjectId, linkInfo)
+  try {
+    const data = await updateLink(_db, linkInfoProcessed, objId)
     // TODO: check for error and return to view level
     return { status: 'ok', data }
-  } else {
-    return { status: 'error', type: 'validation', message: 'unable to validate one or more values', validationResults }
+  } catch (error) {
+    const { message } = error
+    return { status: 'error', message }
   }
 }
 
@@ -56,4 +45,32 @@ const getLinkById = async (_db, filters, objId) => {
   }
 }
 
-export { newLink, getAllLinks, getLinkById }
+const newLink = async (_db, _ObjectId, linkInfo) => {
+
+  // const { anchor, category, description, uri } = linkInfo
+
+  // const isValidAnchor = validateAnchor(anchor)
+  // const isValidCategory = validateCategory(category)
+  // const isValidDescription = validateDescription(description)
+  // const isValidUri = validateUri(uri)
+
+  // const validations = await Promise.allSettled([isValidAnchor, isValidCategory, isValidDescription, isValidUri])
+  // const fields = ['anchor', 'category', 'description', 'uri'] // These need to be in the same order as Promise.allSettled above
+
+  // // Loop through validations
+  // const validationResults = await processValidations(fields, validations)
+  // const foundValidationError = validationResults.findIndex((field) => {
+  //   if (field.isValid === false) { return true }
+  // })
+
+  const foundValidationError = - 1 // Delete this when the validations are completed
+  if (foundValidationError === -1) {
+    const data = await createLink(_db, _ObjectId, linkInfo)
+    // TODO: check for error and return to view level
+    return { status: 'ok', data }
+  } else {
+    return { status: 'error', type: 'validation', message: 'unable to validate one or more values', validationResults }
+  }
+}
+
+export { changeLink, getAllLinks, getLinkById, newLink }
