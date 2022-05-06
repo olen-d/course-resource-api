@@ -49,4 +49,16 @@ const readLinkById = async (_db, filters) => { // The id is included in filters
   }
 }
 
-export { createLink, readAllLinks, readLinkById }
+const updateLink = async (_db, linkInfo, objId) => {
+  try {
+    const filter = { _id: objId }
+    const updateDoc = linkInfo
+ 
+    const result = await _db.collection('links').updateOne(filter, updateDoc)
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+ }
+
+export { createLink, readAllLinks, readLinkById, updateLink }

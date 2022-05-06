@@ -4,6 +4,7 @@ const routes = (app, opts, done) => {
   app.get('/', linkControllers.readPublishedLinks)
   app.get('/all', { preHandler: app.auth([app.verifyJWT]) }, linkControllers.readAllLinks)
   app.get('/all/:id', { preHandler: app.auth([app.verifyJWT]) }, linkControllers.readLinkByIdAll)
+  app.patch('/link/:id', { preHandler: app.auth([app.verifyJWT]) }, linkControllers.updateLink)
   app.post('/link', { preHandler: app.auth([app.verifyJWT]) }, linkControllers.addLink)
   done()
 }

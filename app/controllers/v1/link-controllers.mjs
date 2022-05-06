@@ -1,5 +1,5 @@
 import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
-import { newLink, getAllLinks, getLinkById } from '../../models/v1/link-models.mjs'
+import { changeLink, getAllLinks, getLinkById, newLink } from '../../models/v1/link-models.mjs'
 
 async function addLink (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
@@ -107,4 +107,33 @@ async function readPublishedLinks (req, reply) {
   }
 }
 
-export { addLink, readAllLinks, readLinkByIdAll, readPublishedLinks }
+async function updateLink (req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId} } = this
+  const { body, params: { id }, verifiedAuthToken: { role, sub } } = req
+  const objId = _ObjectId(id)
+
+  const rolesAuthorized = ['siteadmin', 'superadmin']
+  const canUpdate = rolesAuthorized.indexOf(role) !== -1
+
+  if (canUpdate) {
+    const trimmed = trimAll(body)
+    const linkInfo = sanitizeAll(trimmed)
+    // TODO: Check that the userId in the client submittal equals the userId from the token (i.e. sub)
+    try {
+      const result = await changeLink(_db, linkInfo, objId)
+      reply
+        .code(200)
+        .send(result)
+    } catch (error) {
+      reply
+        .code(500)
+        .send(error)
+    }
+  } else {
+    reply
+      .code(403)
+      .send('Current role cannot update a link')
+  }
+}
+
+export { addLink, readAllLinks, readLinkByIdAll, readPublishedLinks, updateLink }
