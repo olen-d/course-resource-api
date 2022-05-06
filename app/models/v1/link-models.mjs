@@ -1,4 +1,4 @@
-import { createLink, readAllLinks } from '../../services/v1/link-services.mjs'
+import { createLink, readAllLinks, readLinkById } from '../../services/v1/link-services.mjs'
 
 const newLink = async (_db, _ObjectId, linkInfo) => {
 
@@ -37,4 +37,23 @@ const getAllLinks = async (_db, filters) => {
   }
 }
 
-export { newLink, getAllLinks }
+const getLinkById = async (_db, filters, objId) => {
+  // TODO: Santize the id
+  filters.push({ _id: objId })
+
+  try{
+    const data = await readLinkById(_db, filters)
+    if(Array.isArray(data) && data.length > 0) {
+      const [{ userFullname: [{ firstName, lastName }] }] = data
+      data[0].userFullname = `${firstName} ${lastName}`
+      return { status: 'ok', data }
+    } else {
+      return { status: 'error' }
+    }
+  } catch(error) {
+    const { message } = error
+    return { status: 'error', message }
+  }
+}
+
+export { newLink, getAllLinks, getLinkById }

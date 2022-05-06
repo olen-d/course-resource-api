@@ -1,5 +1,5 @@
 import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
-import { newLink, getAllLinks } from '../../models/v1/link-models.mjs'
+import { newLink, getAllLinks, getLinkById } from '../../models/v1/link-models.mjs'
 
 async function addLink (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
@@ -51,6 +51,43 @@ async function readAllLinks (req, reply) {
   }
 }
 
+async function readLinkByIdAll (req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId } } = this
+
+  const { verifiedAuthToken: { role, sub }, } = req
+
+  const filters = []
+
+  if (role === 'superadmin') {
+    filters.push({})
+  } else if (role === 'siteadmin') {
+    filters.push({ ownerId: sub })
+  }
+
+  const { params: { id } } = req
+  const objId = _ObjectId(id)
+
+  try {
+    const result = await getLinkById(_db, filters, objId)
+    const { status } = result
+  
+    if ( status === 'error' ) {
+      // TODO: Figure out what the error is and send an appropriate code
+      reply
+        .code(404)
+        .send(result)
+    } else if ( status === 'ok') {
+      reply
+        .code(200)
+        .send(result)
+    }
+  } catch(error) {
+    reply
+      .code(500)
+      .send(error)
+  }
+}
+
 async function readPublishedLinks (req, reply) {
   const { mongo: { db: _db } } = this
 
@@ -70,4 +107,4 @@ async function readPublishedLinks (req, reply) {
   }
 }
 
-export { addLink, readAllLinks, readPublishedLinks }
+export { addLink, readAllLinks, readLinkByIdAll, readPublishedLinks }
