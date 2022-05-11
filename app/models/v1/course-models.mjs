@@ -4,6 +4,12 @@ import { createCourse, deleteCourse, readAllCourses, readCourseBySlug, updateCou
 import { processValidations, validateTimestamp } from '../../services/v1/validate-services.mjs'
 
 const changeCourse = async (_db, _ObjectId, courseId, courseInfo) => {
+  const dogStatisticsFields = [
+    'totalChases',
+    'totalDogs',
+    'totalLegs'
+  ]
+
   const locationFields = [
     'latitude',
     'longitude',
@@ -20,8 +26,11 @@ const changeCourse = async (_db, _ObjectId, courseId, courseInfo) => {
   if (courseInfo.publishOn) {courseInfo.publishOn = new Date(courseInfo.publishOn)} // MongoDB store in native date format
 
   for (const key of Object.keys(courseInfo)) {
-    const index = locationFields.findIndex(location => location === key)
-    if (index !== -1) {
+    const indexDog = dogStatisticsFields.findIndex(dogStatistic => dogStatistic === key)
+    const indexLoc = locationFields.findIndex(location => location === key)
+    if (indexDog !== -1) {
+      courseInfoProcessed.$set[`dogStatistics.${[key]}`] = courseInfo[key]
+    } else if (indexLoc !== -1 ) {
       courseInfoProcessed.$set[`location.${[key]}`] = courseInfo[key]
     } else {
       courseInfoProcessed.$set[key] = courseInfo[key]
