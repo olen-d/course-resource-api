@@ -93,8 +93,17 @@ const newCourse = async (_db, _ObjectId, courseInfo) => {
     creation,
     photographs,
     courseFiles,
-    mapLink
+    mapLink,
+    totalChases,
+    totalDogs,
+    totalLegs
   } = courseInfo
+
+  const dogStatisticsFields = [
+    'totalChases',
+    'totalDogs',
+    'totalLegs'
+  ]
 
   const locationFields = [
     'latitude',
@@ -106,12 +115,16 @@ const newCourse = async (_db, _ObjectId, courseInfo) => {
     'postcode'
   ]
 
-  const location = {}
   const courseInfoProcessed = {}
+  const dogStatistics = {}
+  const location = {}
 
   for (const key of Object.keys(courseInfo)) {
-    const index = locationFields.findIndex(location => location === key)
-    if (index !== -1) {
+    const indexDog = dogStatisticsFields.findIndex(dogStatistic => dogStatistic === key)
+    const indexLoc = locationFields.findIndex(location => location === key)
+    if (indexDog !== -1) {
+      dogStatistics[key] = courseInfo[key]
+    } else if (indexLoc !== -1 ) {
       location[key] = courseInfo[key]
     } else {
       courseInfoProcessed[key] = courseInfo[key]
@@ -119,6 +132,7 @@ const newCourse = async (_db, _ObjectId, courseInfo) => {
   }
 
   courseInfoProcessed.location = location
+  courseInfoProcessed.dogStatistics = dogStatistics
 
   const isValidPublishOn = validateTimestamp(publishOn)
 
