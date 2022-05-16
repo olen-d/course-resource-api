@@ -59,7 +59,7 @@ const createCourseImages = async (req, pathFilesImages, pathFilesOriginals, path
       const filehandle = await fsPromises.open(`${pathFilesOriginals}/${part.filename}`, 'w')
       await pump(part.file, filehandle.createWriteStream())
       await createCourseImage(part.filename, 1920, pathFilesImages, pathFilesOriginals, prefixFilesImages) // TODO: Get image size from settings
-      await createCourseImageThumbnail(part.filename, pathFilesOriginals, pathFilesThumbnails, prefixFilesThumbnails, 300, 200) // TODO: Get thumbnail size from settings
+      await createCourseImageThumbnail(part.filename, pathFilesOriginals, pathFilesThumbnails, prefixFilesThumbnails, 600, 400) // TODO: Get thumbnail size from settings
     }
     return { status: 'created' }
   } catch (error) {
