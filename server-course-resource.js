@@ -29,6 +29,21 @@ const schema = {
 	type: 'object',
 	required: ['DB_NAME', 'DB_PASSWORD', 'DB_USERNAME', 'PORT'],
 	properties: {
+		CONTACT_SMTP_HOST: {
+			type: 'string' 
+		},
+    CONTACT_SMTP_PORT:  {
+			type: 'string' 
+		},
+    CONTACT_SMTP_SECURE:  {
+			type: 'string' 
+		},
+    CONTACT_SMTP_USER:  {
+			type: 'string' 
+		},
+    CONTACT_SMPT_PASS:  {
+			type: 'string' 
+		},
 		DB_NAME: {
 			type: 'string',
 		},
