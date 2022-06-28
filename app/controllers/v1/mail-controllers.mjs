@@ -1,22 +1,7 @@
-import { Resolver } from 'dns/promises'
-const resolver = new Resolver()
+import { mxExists, sendMailMessage } from '../../services/v1/mail-services.mjs'
 
 const checkMx = async (req, reply) => {
   const { params: { email } } = req
-
-  const mxExists = async emailAddress => {
-    const hostname = emailAddress.split("@")[1]
-
-    try {
-      const addresses = await resolver.resolveMx(hostname)
-      if (addresses && addresses.length > 0) {
-        return addresses[0].exchange ? true : false
-      }
-    } catch (error) {
-      // TODO: Deal with the error
-      return false
-    }
-  };
 
   try {
     const result = await mxExists(email)
@@ -28,4 +13,32 @@ const checkMx = async (req, reply) => {
   }
 };
 
-export { checkMx }
+async function sendContactFormMessage(req, reply) {
+  const { config: {
+    CONTACT_SMTP_HOST: host,
+    CONTACT_SMTP_PORT: port,
+    CONTACT_SMTP_SECURE: secure,
+    CONTACT_SMTP_USER: user,
+    CONTACT_SMPT_PASS: pass
+  }
+} = this
+
+  const {
+    body: { mailOptions }
+  } = req;
+
+  // TODO: Validate Mail Options
+
+  try {
+    const result = await sendMailMessage(host, pass, port, secure, user, mailOptions)
+    reply
+      .status(200)
+      .send(result)
+  } catch (error) {
+    reply
+      .status(500)
+      .send({ error })
+  }
+}
+
+export { checkMx, sendContactFormMessage }
