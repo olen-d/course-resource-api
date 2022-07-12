@@ -235,6 +235,7 @@ async function readPublishedCourses (req, reply) {
       db: _db
     },
     config: {
+      PATH_FILES_COURSES: pathFilesCourses,
       PATH_FILES_IMAGES: pathFilesImages,
       PATH_FILES_ORIGINALS: pathFilesOriginals,
       PATH_FILES_THUMBNAILS: pathFilesThumbnails,
@@ -252,7 +253,7 @@ async function readPublishedCourses (req, reply) {
       .code(404)
       .send(result)
   } else if ( status === 'ok') {
-    const paths = { pathFilesImages, pathFilesOriginals, pathFilesThumbnails}
+    const paths = { pathFilesCourses, pathFilesImages, pathFilesOriginals, pathFilesThumbnails}
     const prefixes = { prefixFilesImages, prefixFilesThumbnails}
     result.paths = { ...paths }
     result.prefixes = { ...prefixes }
