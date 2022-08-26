@@ -71,6 +71,9 @@ const schema = {
 		PREFIX_FILES_THUMBNAILS: {
 			type: 'string'
 		},
+		PRESENTATION_HOSTNAME: {
+			type: 'string'
+		},
 		PORT: {
 			type: 'string',
 			default: 3300,
@@ -142,9 +145,21 @@ const initialize = async () => {
 		}
 	})
 	
-	// !TODO: Fix this before deploy to enable cors on production server
 	app.register(fastifyCors, {
-		origin: '*',
+		// origin: '*',
+		// TODO: Set up API keys - valid key will issue a bearer token with user role valid for 10 seconds, the following is just quick and dirty
+		origin: (origin, cb) => {
+			const hostname = new URL(origin).hostname
+			// Get the allowed hostname
+			const presentationHostname = app.config.PRESENTATION_HOSTNAME
+			if(hostname === presentationHostname){
+				//  Request from presentation host will pass
+				cb(null, true)
+				return
+			}
+			// Generate an error on other origins, disabling access
+			cb(new Error("Not allowed"))
+		}
 	})
 
 	// Database
