@@ -84,6 +84,9 @@ const schema = {
 // 		COOKIE_SECRET: {
 // 			type: 'string',
 // 		},
+		IS_SAME_ORIGIN: {
+			type: 'boolean'
+		},
 		JWT_ALGORITHM: {
 			type: 'string',
 		},
@@ -144,11 +147,14 @@ const initialize = async () => {
 			reply.code(401).send(error)
 		}
 	})
-	
+
 	app.register(fastifyCors, {
-		// origin: '*',
 		// TODO: Set up API keys - valid key will issue a bearer token with user role valid for 10 seconds, the following is just quick and dirty
 		origin: (origin, cb) => {
+			if (app.config.IS_SAME_ORIGIN) {
+				cb(null, false)
+				return
+			} 
 			const hostname = new URL(origin).hostname
 			// Get the allowed hostname
 			const presentationHostname = app.config.PRESENTATION_HOSTNAME
