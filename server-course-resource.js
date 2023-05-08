@@ -14,6 +14,7 @@ import { routes as authRoutes } from './app/routes/v1/auth-routes.mjs'
 import { routes as courseRoutes } from './app/routes/v1/course-routes.mjs'
 import { routes as linkRoutes } from './app/routes/v1/link-routes.mjs'
 import { routes as mailRoutes } from './app/routes/v1/mail-routes.mjs'
+import { routes as newsRoutes } from './app/routes/v1/news-routes.mjs'
 import { routes as userRoutes } from './app/routes/v1/user-routes.mjs'
 import { routes as welcomeRoutes } from './app/routes/v1/welcome-routes.mjs'
 
@@ -193,6 +194,7 @@ const initialize = async () => {
 	app.register(courseRoutes, { prefix: 'api/v1/courses' })
 	app.register(linkRoutes, { prefix: 'api/v1/links' })
 	app.register(mailRoutes, { prefix: 'api/v1/mail'})
+	app.register(newsRoutes, { prefix: 'api/v1/news' })
 	app.register(userRoutes, { prefix: 'api/v1/users' })
 	app.register(welcomeRoutes, { prefix: 'api/v1/welcome' })
 }
