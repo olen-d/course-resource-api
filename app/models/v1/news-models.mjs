@@ -39,7 +39,8 @@ const newStory = async (_db, _ObjectId, info) => {
       isPublished,
       ownerId,
       publishOn,
-      slug
+      slug,
+      updated: currentUpdate
     } = info
 
     // const isValidAnchor = validateAnchor(anchor)
@@ -58,6 +59,7 @@ const newStory = async (_db, _ObjectId, info) => {
 
     const foundValidationError = - 1 // Delete this when the validations are completed
     if (foundValidationError === -1) {
+      info.updated = [ currentUpdate ] // TODO: Make this more elegent in the future
       const data = await createStory(_db, _ObjectId, info)
       // TODO: check for error and return to view level
       return { status: 'ok', data }
