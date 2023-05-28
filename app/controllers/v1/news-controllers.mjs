@@ -48,7 +48,30 @@ async function purgeStory (req, reply) {
   }
 }
 
-async function readPublishedStories (req, reply) {
+async function readStoriesAll (req, reply) {
+  try {
+    const { mongo: { db: _db } } = this
+
+    const filters = []
+    const result = await getAllStories(_db, filters)
+    const { status } = result
+  
+    if ( status === 'error' ) {
+      // TODO: Figure out what the error is and send an appropriate code
+      reply
+        .code(404)
+        .send(result)
+    } else if ( status === 'ok') {
+      reply
+        .code(200)
+        .send(result)
+    }
+  } catch (error) {
+    throw new Error(`News Controllers Read Stories All ${error}`)
+  }
+}
+
+async function readStoriesPublished (req, reply) {
   try {
     const { mongo: { db: _db } } = this
 
@@ -67,7 +90,7 @@ async function readPublishedStories (req, reply) {
         .send(result)
     }
   } catch (error) {
-    throw new Error(`News Controllers Read Published Stories ${error}`)
+    throw new Error(`News Controllers Read Stories Published ${error}`)
   }
 }
 
@@ -99,4 +122,10 @@ async function reviseStory (req, reply) {
   }
 }
 
-export { addStory, purgeStory, readPublishedStories, reviseStory }
+export {
+  addStory,
+  purgeStory,
+  readStoriesAll,
+  readStoriesPublished,
+  reviseStory
+}
