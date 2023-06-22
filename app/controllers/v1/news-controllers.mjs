@@ -1,5 +1,11 @@
 import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
-import { changeStory, getAllStories, newStory, removeStory } from '../../models/v1/news-models.mjs'
+import {
+  changeStory,
+  getAllStories,
+  getStoryById,
+  newStory,
+  removeStory
+} from '../../models/v1/news-models.mjs'
 
 async function addStory (req, reply) {
   try {
@@ -71,6 +77,40 @@ async function readStoriesAll (req, reply) {
   }
 }
 
+async function readStoryById (req, reply) {
+  try {
+    const { mongo: { db: _db, ObjectId: _ObjectId } } = this
+    const { body, params: { id }, verifiedAuthToken: { role, sub } } = req
+    const objId = _ObjectId(id)
+
+    const rolesAuthorized = ['siteadmin', 'superadmin']
+    const canRead = rolesAuthorized.indexOf(role) !== -1
+
+    if (canRead) {
+      const filters = [{ _id: objId }]
+      const result = await getAllStories(_db, filters)
+      const { status } = result
+    
+      if ( status === 'error' ) {
+        // TODO: Figure out what the error is and send an appropriate code
+        reply
+          .code(404)
+          .send(result)
+      } else if ( status === 'ok') {
+        reply
+          .code(200)
+          .send(result)
+      }
+    } else {
+      reply
+        .code(403)
+        .send('Current role cannot retrieve story')
+    }
+  } catch (error) {
+    throw new Error(`News Controllers Read Stories All ${error}`)
+  }
+}
+
 async function readStoriesPublished (req, reply) {
   try {
     const { mongo: { db: _db } } = this
@@ -96,7 +136,7 @@ async function readStoriesPublished (req, reply) {
 
 async function reviseStory (req, reply) {
   try {
-    const { mongo: { db: _db, ObjectId: _ObjectId} } = this
+    const { mongo: { db: _db, ObjectId: _ObjectId } } = this
     const { body, params: { id }, verifiedAuthToken: { role, sub } } = req
     const objId = _ObjectId(id)
   
@@ -108,7 +148,7 @@ async function reviseStory (req, reply) {
       const info = sanitizeAll(trimmed)
       // TODO: Check that the userId in the client submittal equals the userId from the token (i.e. sub)
 
-      const result = await changeStory(_db, objId, info)
+      const result = await changeStory(_db, objId, info, sub)
       reply
         .code(200)
         .send(result)
@@ -127,5 +167,6 @@ export {
   purgeStory,
   readStoriesAll,
   readStoriesPublished,
+  readStoryById,
   reviseStory
 }
