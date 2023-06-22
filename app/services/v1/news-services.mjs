@@ -41,10 +41,31 @@ const readAllStories = async (_db, filters) => {
   }
 }
 
-const updateStory = async (_db, objId, info) => {
+const readStoryById = async (_db, filters, objId) => {
+try {
+  const mongoFilters = filters.reduce((obj, item) => {
+    const [key] = Object.keys(item)
+    const value = item[key]
+    obj[key] = value
+    return obj
+  }, {})
+
+  const cursor = await _db.collection('news').find(mongoFilters)
+  const data = await cursor.toArray()
+  return data
+} catch (error) {
+  throw new Error(`News Services Read Story By Id ${error}`)
+}
+}
+
+const updateStory = async (_db, objId, info, sub) => {
   try {
+    const at = Date.now()
+
     const filter = { _id: objId }
-    const updateDoc = info
+    const modifiers = { $push: { updated: { by: sub, at } } }
+
+    const updateDoc = { ...info, ...modifiers }
  
     const result = await _db.collection('news').updateOne(filter, updateDoc)
     return result
@@ -53,4 +74,10 @@ const updateStory = async (_db, objId, info) => {
   }
  }
 
-export { createStory, deleteStory, readAllStories, updateStory }
+export {
+  createStory,
+  deleteStory,
+  readAllStories,
+  readStoryById,
+  updateStory
+}

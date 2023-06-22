@@ -1,6 +1,12 @@
-import { createStory, deleteStory, readAllStories, updateStory } from '../../services/v1/news-services.mjs'
+import {
+  createStory,
+  deleteStory,
+  readAllStories,
+  readStoryById,
+  updateStory 
+} from '../../services/v1/news-services.mjs'
 
-const changeStory= async (_db, objId, info) => {
+const changeStory= async (_db, objId, info, sub) => {
   try {
     const infoProcessed = { $set: {} }
 
@@ -8,7 +14,7 @@ const changeStory= async (_db, objId, info) => {
       infoProcessed.$set[key] = info[key]
     }
 
-    const data = await updateStory(_db, objId, infoProcessed)
+    const data = await updateStory(_db, objId, infoProcessed, sub)
     return { status: 'ok', data }
   } catch (error) {
     throw new Error(`News Models Change Story ${error}`)
@@ -19,12 +25,25 @@ const getAllStories = async (_db, filters) => {
   try {
     const data = await readAllStories(_db, filters)
     if (Array.isArray(data) && data.length > 0) {
-      return { status: 'ok', data } 
+      return { status: 'ok', data }
     } else {
       return { status: 'error' }
     }
   } catch (error) {
     throw new Error(`News Models Get All Stories ${error}`)
+  }
+}
+
+const getStoryById = async (_db, filters) => {
+  try {
+    const data = await readStoryById(_db, filters)
+    if (Array.isArray(data) && data.length > 0) {
+      return { status: 'ok', data } 
+    } else {
+      return { status: 'error' }
+    }
+  } catch (error) {
+    throw new Error(`News Models Get Story By Id ${error}`)
   }
 }
 
@@ -83,4 +102,10 @@ const removeStory = async (_db, _ObjectId, id) => {
   }
 }
 
-export { changeStory, getAllStories, newStory, removeStory }
+export {
+  changeStory,
+  getAllStories,
+  getStoryById,
+  newStory,
+  removeStory
+}
