@@ -54,6 +54,31 @@ async function purgeStory (req, reply) {
   }
 }
 
+async function readStoriesActive (req, reply) {
+  try {
+    const { mongo: { db: _db } } = this
+
+    const currentTimestamp = Date.now()
+
+    const filters = [{ isPublished: true }, { publishOn: { $lt: currentTimestamp} }, { expiresOn: { $gt: currentTimestamp } }]
+    const result = await getAllStories(_db, filters)
+    const { status } = result
+  
+    if ( status === 'error' ) {
+      // TODO: Figure out what the error is and send an appropriate code
+      reply
+        .code(404)
+        .send(result)
+    } else if ( status === 'ok') {
+      reply
+        .code(200)
+        .send(result)
+    }
+  } catch (error) {
+    throw new Error(`News Controllers Read Stories Active ${error}`)
+  }
+}
+
 async function readStoriesAll (req, reply) {
   try {
     const { mongo: { db: _db } } = this
@@ -90,7 +115,7 @@ async function readStoryById (req, reply) {
       const filters = [{ _id: objId }]
       const result = await getAllStories(_db, filters)
       const { status } = result
-    
+
       if ( status === 'error' ) {
         // TODO: Figure out what the error is and send an appropriate code
         reply
@@ -165,6 +190,7 @@ async function reviseStory (req, reply) {
 export {
   addStory,
   purgeStory,
+  readStoriesActive,
   readStoriesAll,
   readStoriesPublished,
   readStoryById,
