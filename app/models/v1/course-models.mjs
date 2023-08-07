@@ -23,6 +23,7 @@ const changeCourse = async (_db, _ObjectId, courseId, courseInfo) => {
   const courseInfoProcessed = { $set: {} }
   const courseObjId = _ObjectId(courseId)
 
+  if (courseInfo.difficulty) {courseInfo.difficulty = _ObjectId(courseInfo.difficulty)}
   if (courseInfo.publishOn) {courseInfo.publishOn = new Date(courseInfo.publishOn)} // MongoDB store in native date format
 
   for (const key of Object.keys(courseInfo)) {

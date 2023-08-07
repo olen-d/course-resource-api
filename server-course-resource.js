@@ -12,6 +12,7 @@ import fastifyMultipart from 'fastify-multipart'
 import { routes as aboutRoutes } from './app/routes/v1/about-routes.mjs'
 import { routes as authRoutes } from './app/routes/v1/auth-routes.mjs'
 import { routes as courseRoutes } from './app/routes/v1/course-routes.mjs'
+import { routes as difficultyRoutes } from './app/routes/v1/difficulty-routes.mjs'
 import { routes as linkRoutes } from './app/routes/v1/link-routes.mjs'
 import { routes as mailRoutes } from './app/routes/v1/mail-routes.mjs'
 import { routes as newsRoutes } from './app/routes/v1/news-routes.mjs'
@@ -135,14 +136,18 @@ const initialize = async () => {
 	app.decorate('verifyJWT', async (request, reply) => {
 		try {
 			const { headers: { authorization }, } = request
-			const authToken = authorization.replace('Bearer ', '')
-			const result = await verifyToken(authToken, app.config.JWT_PUBLIC_KEY_PEM_FILE, app.config.JWT_ALGORITHM, app.config.JWT_ISSUER)
-			const { aud } = result
-			// TODO: Check iss against a white list of valid issuers
-			if (app.config.SERVER_URL === aud) {
-				request.verifiedAuthToken = { ...result }
+			if (authorization) {
+				const authToken = authorization.replace('Bearer ', '')
+				const result = await verifyToken(authToken, app.config.JWT_PUBLIC_KEY_PEM_FILE, app.config.JWT_ALGORITHM, app.config.JWT_ISSUER)
+				const { aud } = result
+				// TODO: Check iss against a white list of valid issuers
+				if (app.config.SERVER_URL === aud) {
+					request.verifiedAuthToken = { ...result }
+				} else {
+					throw new Error('invalid audience');
+				}
 			} else {
-				throw new Error('invalid audience');
+				reply.code(401).send('Authorization token not provided.')
 			}
 		} catch (error) {
 			reply.code(401).send(error)
@@ -150,23 +155,23 @@ const initialize = async () => {
 	})
 
 	app.register(fastifyCors, {
-		// TODO: Set up API keys - valid key will issue a bearer token with user role valid for 10 seconds, the following is just quick and dirty
-		origin: (origin, cb) => {
-			if (app.config.IS_SAME_ORIGIN) {
-				cb(null, false)
-				return
-			} 
-			const hostname = new URL(origin).hostname
-			// Get the allowed hostname
-			const presentationHostname = app.config.PRESENTATION_HOSTNAME
-			if(hostname === presentationHostname){
-				//  Request from presentation host will pass
-				cb(null, true)
-				return
-			}
-			// Generate an error on other origins, disabling access
-			cb(new Error("Not allowed"))
-		}
+		// // TODO: Set up API keys - valid key will issue a bearer token with user role valid for 10 seconds, the following is just quick and dirty
+		// origin: (origin, cb) => {
+		// 	if (app.config.IS_SAME_ORIGIN) {
+		// 		cb(null, false)
+		// 		return
+		// 	} 
+		// 	const hostname = new URL(origin).hostname
+		// 	// Get the allowed hostname
+		// 	const presentationHostname = app.config.PRESENTATION_HOSTNAME
+		// 	if(hostname === presentationHostname){
+		// 		//  Request from presentation host will pass
+		// 		cb(null, true)
+		// 		return
+		// 	}
+		// 	// Generate an error on other origins, disabling access
+		// 	cb(new Error("Not allowed"))
+		// }
 	})
 
 	// Database
@@ -192,6 +197,7 @@ const initialize = async () => {
 	app.register(aboutRoutes, { prefix: 'api/v1/about' })
 	app.register(authRoutes, { prefix: 'api/v1/auth' })
 	app.register(courseRoutes, { prefix: 'api/v1/courses' })
+	app.register(difficultyRoutes, { prefix: 'api/v1/difficulty' })
 	app.register(linkRoutes, { prefix: 'api/v1/links' })
 	app.register(mailRoutes, { prefix: 'api/v1/mail'})
 	app.register(newsRoutes, { prefix: 'api/v1/news' })
