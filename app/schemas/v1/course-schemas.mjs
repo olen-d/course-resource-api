@@ -48,9 +48,7 @@ const addSchema = {
       state: { type: 'string' },
       country: { type: 'string' },
       postcode: { type: 'string'},
-      difficulty: { 
-        enum: ['easiest', 'easy', 'more difficult', 'very difficult', 'extremely difficult']
-      },
+      difficulty: { type: 'string' },
       summary: { type: 'string' },
       terrain: {
         enum: ['flat', 'rolling hills', 'hills', 'mountains']
