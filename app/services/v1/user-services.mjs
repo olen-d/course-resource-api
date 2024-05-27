@@ -1,5 +1,7 @@
-const createUser = async (_db, newUser) => {
+const createUser = async (_db, _ObjectId, newUser) => {
   try {
+    const { createdBy: createdByValue } = newUser
+    newUser.createdBy = _ObjectId(createdByValue) // Store creatoror as an ObjectId, useful for doing $lookup
     const result = await _db.collection('users').insertOne(newUser)
     return result
   } catch (error) {

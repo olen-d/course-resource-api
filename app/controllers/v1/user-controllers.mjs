@@ -2,7 +2,7 @@ import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
 import { getAllUsers, newUser } from '../../models/v1/user-models.mjs'
 
 async function addUser (req, reply) {
-  const { mongo: { db: _db } } = this // _ObjectID is also available
+  const { mongo: { db: _db, ObjectId: _ObjectId } } = this
 
   const { body, verifiedAuthToken: { role, sub }, } = req
   // Only admin or superadmin can create a new user
@@ -17,7 +17,7 @@ async function addUser (req, reply) {
     userInfo.createdBy = sub
 
     if (newUserRole !== 'admin' && newUserRole !== 'superadmin') {
-      const result = await newUser(_db, userInfo)
+      const result = await newUser(_db, _ObjectId, userInfo)
       return result
     }
     if (canCreateAdmin && newUserRole === 'admin') {
@@ -27,7 +27,7 @@ async function addUser (req, reply) {
       throw new Error('current role cannot create an administrator')
     }
   } else {
-    throw new Error('current role cannot create a user')
+    reply.code(403).send({ message: 'current role cannot create a user' })
   }
 }
 
