@@ -8,7 +8,7 @@ const getAllUsers = async (_db) => {
   return { status: 'ok', data }
 }
 
-const newUser = async (_db, userInfo) => {
+const newUser = async (_db, _ObjectId, userInfo) => {
   const {
     emailAddress,
     firstName,
@@ -52,7 +52,7 @@ const newUser = async (_db, userInfo) => {
         createdBy
       }
 
-      const data = await createUser(_db, userInfoValidated)
+      const data = await createUser(_db, _ObjectId, userInfoValidated)
       return { status: 'ok', data }
     }
   } else {
