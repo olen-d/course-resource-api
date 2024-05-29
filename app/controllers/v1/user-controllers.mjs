@@ -1,5 +1,5 @@
 import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
-import { getAllUsers, newUser } from '../../models/v1/user-models.mjs'
+import { getAllUsers, getUserById, newUser } from '../../models/v1/user-models.mjs'
 
 async function addUser (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
@@ -38,4 +38,12 @@ async function readAllUsers (req, reply) {
   return result
 }
 
-export { addUser, readAllUsers }
+async function readUserById (req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId } } = this
+  const { body, params: { userId } } = req
+
+  const result = await getUserById(_db, _ObjectId, { userId })
+  return result
+}
+
+export { addUser, readAllUsers, readUserById }

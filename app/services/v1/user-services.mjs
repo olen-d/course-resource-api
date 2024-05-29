@@ -9,6 +9,27 @@ const createUser = async (_db, _ObjectId, newUser) => {
   }
 }
 
+const readUserById = async (_db, _ObjectId, info) => {
+  try {
+    const { userId } = info
+    const options = {
+      projection: {
+        emailAddress: 1,
+        firstName: 1,
+        lastName: 1,
+        role: 1,
+        username: 1
+      }
+    }
+    const query = _ObjectId(userId)
+
+    const data = await _db.collection('users').findOne(query, options)
+    return data
+  } catch (error) {
+    throw new Error(`User Services Read User By Id Error: ${error}`)
+  } 
+}
+
 const readUserPasswordHash = async (_db, info) => {
   const { username } = info
   const options = { projection: { passwordHash: 1 } }
@@ -46,4 +67,10 @@ const readAllUsers = async (_db) => {
   }
 }
 
-export { createUser, readAllUsers, readUserPasswordHash, readUserRole}
+export {
+  createUser,
+  readAllUsers,
+  readUserById,
+  readUserPasswordHash,
+  readUserRole
+}

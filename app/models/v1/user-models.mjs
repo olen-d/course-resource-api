@@ -1,11 +1,32 @@
 import { hashPassword } from '../../services/v1/bcrypt-services.mjs'
 
-import { createUser, readAllUsers } from '../../services/v1/user-services.mjs'
-import { processValidations, validateEmailAddress, validateFirstName, validateLastName, validatePassword, validateRole, validateUsername } from '../../services/v1/validate-services.mjs'
+import { createUser, readAllUsers, readUserById } from '../../services/v1/user-services.mjs'
+import {
+  processValidations,
+  validateEmailAddress,
+  validateFirstName,
+  validateLastName,
+  validatePassword,
+  validateRole,
+  validateUsername
+} from '../../services/v1/validate-services.mjs'
 
 const getAllUsers = async (_db) => {
   const data = await readAllUsers(_db)
   return { status: 'ok', data }
+}
+
+const getUserById = async (_db, _ObjectId, info) => {
+  try {
+    const data = await readUserById(_db, _ObjectId, info)
+    if (data) {
+      return { status: 'ok', data }
+    } else {
+      return { status: 'error', type: 'database', message: 'no data was returned' }
+    }
+  } catch (error) {
+    throw new Error(`User Models Get User By Id Error: ${error}`)
+  }
 }
 
 const newUser = async (_db, _ObjectId, userInfo) => {
@@ -60,4 +81,4 @@ const newUser = async (_db, _ObjectId, userInfo) => {
   }
 }
 
-export { getAllUsers, newUser }
+export { getAllUsers, getUserById, newUser }
