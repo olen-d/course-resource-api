@@ -1,5 +1,5 @@
 import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
-import { getAllUsers, getUserById, newUser } from '../../models/v1/user-models.mjs'
+import { changeUserById, getAllUsers, getUserById, newUser } from '../../models/v1/user-models.mjs'
 
 async function addUser (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
@@ -46,4 +46,26 @@ async function readUserById (req, reply) {
   return result
 }
 
-export { addUser, readAllUsers, readUserById }
+async function updateUserById(req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId } } = this
+  const { body, params: { userId }, verifiedAuthToken: { role, sub } } = req
+
+  const rolesAuthorized = ['superadmin']
+  const canUpdate = rolesAuthorized.indexOf(role) !== -1
+
+  if (canUpdate) {
+    const trimmed = trimAll(body)
+    const info = sanitizeAll(trimmed)
+    // TODO: Check that the userId in the client submittal equals the userId from the token (i.e. sub)
+    try {
+      const result = await changeUserById(_db, _ObjectId, info, userId)
+      return result
+    } catch (error) {
+      throw new Error(`User Controllers Update User By Id: ${error}`)
+    }
+  } else {
+    throw new Error('current role cannot update a user')
+  }
+}
+
+export { addUser, readAllUsers, readUserById, updateUserById }

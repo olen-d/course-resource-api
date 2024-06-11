@@ -67,10 +67,25 @@ const readAllUsers = async (_db) => {
   }
 }
 
+const updateUserById = async(_db, _ObjectId, infoProcessed, userId) => {
+  const userObjId = _ObjectId(userId)
+
+  const filter = { _id: userObjId}
+  const updateDoc = infoProcessed
+
+  try {
+    const result = await _db.collection('users').updateOne(filter, updateDoc)
+    return result
+  } catch (error) {
+    throw new Error(`User Services Update User By Id Error: ${error}`)
+  }
+}
+
 export {
   createUser,
   readAllUsers,
   readUserById,
   readUserPasswordHash,
-  readUserRole
+  readUserRole,
+  updateUserById
 }

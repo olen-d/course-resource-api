@@ -1,6 +1,6 @@
 import { hashPassword } from '../../services/v1/bcrypt-services.mjs'
 
-import { createUser, readAllUsers, readUserById } from '../../services/v1/user-services.mjs'
+import { createUser, readAllUsers, readUserById, updateUserById } from '../../services/v1/user-services.mjs'
 import {
   processValidations,
   validateEmailAddress,
@@ -10,6 +10,21 @@ import {
   validateRole,
   validateUsername
 } from '../../services/v1/validate-services.mjs'
+
+const changeUserById = async (_db, _ObjectId, info, userId) => {
+  const infoProcessed = { $set: {} }
+
+  for (const key of Object.keys(info)) {
+    infoProcessed.$set[key] = info[key]
+  }
+  try {
+    const data = await updateUserById(_db, _ObjectId, infoProcessed, userId)
+    // TODO: check for error and return to view level
+    return { status: 'ok', data }
+  } catch (error) {
+    throw new Error(`User Models Change User By Id Error: ${error}`)
+  }
+}
 
 const getAllUsers = async (_db) => {
   const data = await readAllUsers(_db)
@@ -81,4 +96,4 @@ const newUser = async (_db, _ObjectId, userInfo) => {
   }
 }
 
-export { getAllUsers, getUserById, newUser }
+export { changeUserById, getAllUsers, getUserById, newUser }
