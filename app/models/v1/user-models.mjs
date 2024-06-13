@@ -12,7 +12,18 @@ import {
 } from '../../services/v1/validate-services.mjs'
 
 const changeUserById = async (_db, _ObjectId, info, userId) => {
+  // TODO: Validate the fields
   const infoProcessed = { $set: {} }
+
+  if (info.plaintextPassword) {
+    const { plaintextPassword } = info
+
+    const passwordHash = await hashPassword(plaintextPassword)
+
+    if (passwordHash) { info.passwordHash = passwordHash }
+
+    delete info.plaintextPassword 
+  }
 
   for (const key of Object.keys(info)) {
     infoProcessed.$set[key] = info[key]
