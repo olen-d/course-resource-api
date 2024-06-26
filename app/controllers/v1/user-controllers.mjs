@@ -1,5 +1,11 @@
 import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
-import { changeUserById, getAllUsers, getUserById, newUser } from '../../models/v1/user-models.mjs'
+import {
+  changeUserById,
+  getAllUsers,
+  getUserById,
+  newUser,
+  removeUserById
+} from '../../models/v1/user-models.mjs'
 
 async function addUser (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
@@ -28,6 +34,21 @@ async function addUser (req, reply) {
     }
   } else {
     reply.code(403).send({ message: 'current role cannot create a user' })
+  }
+}
+
+async function purgeUserById (req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId} } = this
+  const { body, params: { userId }, verifiedAuthToken: { role, sub } } = req
+
+  const rolesAuthorized = ['superadmin']
+  const canDelete = rolesAuthorized.indexOf(role) !== -1
+
+  if (canDelete) {
+    const result = await removeUserById(_db, _ObjectId, { userId })
+    return result
+  } else {
+    throw new Error('current role cannot delete a user')
   }
 }
 
@@ -68,4 +89,10 @@ async function updateUserById(req, reply) {
   }
 }
 
-export { addUser, readAllUsers, readUserById, updateUserById }
+export {
+  addUser,
+  purgeUserById,
+  readAllUsers,
+  readUserById,
+  updateUserById
+}

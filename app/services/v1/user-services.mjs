@@ -9,6 +9,19 @@ const createUser = async (_db, _ObjectId, newUser) => {
   }
 }
 
+const deleteUserById = async (_db, _ObjectId, info) => {
+  const { userId } = info
+  const userObjId = _ObjectId(userId)
+  const filter = { _id: userObjId }
+
+  try {
+    const result = await _db.collection('users').findOneAndDelete(filter)
+    return result
+  } catch (error) {
+    throw new Error(`User Services Delete User By Id Error: ${error}`)
+  }
+}
+
 const readUserById = async (_db, _ObjectId, info) => {
   try {
     const { userId } = info
@@ -83,6 +96,7 @@ const updateUserById = async(_db, _ObjectId, infoProcessed, userId) => {
 
 export {
   createUser,
+  deleteUserById,
   readAllUsers,
   readUserById,
   readUserPasswordHash,

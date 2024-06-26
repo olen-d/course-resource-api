@@ -1,6 +1,6 @@
 import { hashPassword } from '../../services/v1/bcrypt-services.mjs'
 
-import { createUser, readAllUsers, readUserById, updateUserById } from '../../services/v1/user-services.mjs'
+import { createUser, deleteUserById, readAllUsers, readUserById, updateUserById } from '../../services/v1/user-services.mjs'
 import {
   processValidations,
   validateEmailAddress,
@@ -107,4 +107,20 @@ const newUser = async (_db, _ObjectId, userInfo) => {
   }
 }
 
-export { changeUserById, getAllUsers, getUserById, newUser }
+const removeUserById = async (_db, _ObjectId, info) => {
+  try {
+    const data = await deleteUserById(_db, _ObjectId, info)
+    // TODO: check for error and return to view level
+    return { status: 'ok', data }
+  } catch (error) {
+    throw new Error(`User Models Remove User By Id Error: ${error}`)
+  }
+}
+
+export {
+  changeUserById,
+  getAllUsers,
+  getUserById,
+  newUser,
+  removeUserById
+}
