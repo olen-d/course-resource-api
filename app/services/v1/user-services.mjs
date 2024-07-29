@@ -43,6 +43,19 @@ const readUserById = async (_db, _ObjectId, info) => {
   } 
 }
 
+const readUseridPasswordHash = async (_db, _ObjectId, info) => {
+  const { userid } = info
+  const options = { projection: { passwordHash: 1 } }
+  const query = _ObjectId(userid)
+
+  try {
+    const data = await _db.collection('users').findOne(query, options)
+    return data
+  } catch (error) {
+    throw new Error(`User Services Read Userid Password Hash Error; ${error}`)
+  }
+}
+
 const readUserPasswordHash = async (_db, info) => {
   const { username } = info
   const options = { projection: { passwordHash: 1 } }
@@ -99,6 +112,7 @@ export {
   deleteUserById,
   readAllUsers,
   readUserById,
+  readUseridPasswordHash,
   readUserPasswordHash,
   readUserRole,
   updateUserById

@@ -1,7 +1,7 @@
 import { createRefreshToken } from '../../services/v1/auth-services.mjs'
 import { checkPassword } from '../../services/v1/bcrypt-services.mjs'
 import { issueBearerToken, issueRefreshToken } from '../../services/v1/jsonwebtoken-services.mjs'
-import { readUserPasswordHash, readUserRole } from '../../services/v1/user-services.mjs'
+import { readUseridPasswordHash, readUserPasswordHash, readUserRole } from '../../services/v1/user-services.mjs'
 import { processValidations, validatePassword, validateUsername } from '../../services/v1/validate-services.mjs'
 
 const authenticateUser = async (_db, _ObjectId, algorithm, audience, clientId, clientIp, info, issuer, privateKeyFile, refreshtokenAudience, refreshTokenPrivateKeyFile) => {
@@ -66,4 +66,20 @@ const authenticateUser = async (_db, _ObjectId, algorithm, audience, clientId, c
   }
 }
 
-export { authenticateUser }
+const authenticateUseridAndPassword = async (_db, _ObjectId, info) => {
+  const { plaintextPassword, userid } = info
+  const infoValidated = { userid }
+
+  // TODO: Validate plaintextpassword
+
+  try {
+    const data = await readUseridPasswordHash(_db, _ObjectId, infoValidated)
+    const { _id: userid, passwordHash } = data
+    const isAuthenticated = await checkPassword(plaintextPassword, passwordHash)
+    return isAuthenticated
+  } catch (error) {
+    throw new Error(`Auth Models Authenticate Userid And Password Error: ${error}`)
+  }
+}
+
+export { authenticateUser, authenticateUseridAndPassword }
