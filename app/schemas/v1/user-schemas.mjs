@@ -4,7 +4,7 @@ const addSchema = {
   headers: authSchema,
   body: {
     type: 'object',
-    required: ['emailAddress', 'firstName', 'lastName', 'plaintextPassword', 'role', 'username'],
+    required: ['emailAddress', 'firstName', 'lastName', 'plaintextPassword', 'plaintextPasswordRe', 'role', 'username'],
     properties: {
       emailAddress: {
         type: 'string'
@@ -16,6 +16,9 @@ const addSchema = {
         type: 'string'
       },
       plaintextPassword: {
+        type: 'string'
+      },
+      plaintextPasswordRe: {
         type: 'string'
       },
       role: {

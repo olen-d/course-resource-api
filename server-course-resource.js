@@ -19,7 +19,10 @@ import { routes as newsRoutes } from './app/routes/v1/news-routes.mjs'
 import { routes as userRoutes } from './app/routes/v1/user-routes.mjs'
 import { routes as welcomeRoutes } from './app/routes/v1/welcome-routes.mjs'
 
-// Other services
+// Models
+import { authenticateUseridAndPassword } from './app/models/v1/auth-models.mjs'
+
+// Services
 import { verifyToken } from './app/services/v1/jsonwebtoken-services.mjs' // Used instead of fastify-jwt because both authorization and refresh tokens need to be signed and verified
 
 // eslint-disable-next-line new-cap
@@ -147,31 +150,44 @@ const initialize = async () => {
 					throw new Error('invalid audience');
 				}
 			} else {
-				reply.code(401).send('Authorization token not provided.')
+				return reply.code(401).send('Authorization token not provided.')
 			}
 		} catch (error) {
-			reply.code(401).send(error)
+			return reply.code(401).send(error)
+		}
+	})
+
+	app.decorate('verifyUseridAndPassword', async function (request, reply) {
+		const { body: { plaintextPasswordRe }, verifiedAuthToken: { sub: userid }, } = request
+
+		const { mongo: { db: _db, ObjectId: _ObjectId} } = this
+
+		const info = {plaintextPassword: plaintextPasswordRe, userid}
+
+		const data = await authenticateUseridAndPassword(_db, _ObjectId, info)
+		if (!data) {
+			return reply.code(403).send({ status: 403, message: 'Invalid Password'})
 		}
 	})
 
 	app.register(fastifyCors, {
-		// // TODO: Set up API keys - valid key will issue a bearer token with user role valid for 10 seconds, the following is just quick and dirty
-		// origin: (origin, cb) => {
-		// 	if (app.config.IS_SAME_ORIGIN) {
-		// 		cb(null, false)
-		// 		return
-		// 	} 
-		// 	const hostname = new URL(origin).hostname
-		// 	// Get the allowed hostname
-		// 	const presentationHostname = app.config.PRESENTATION_HOSTNAME
-		// 	if(hostname === presentationHostname){
-		// 		//  Request from presentation host will pass
-		// 		cb(null, true)
-		// 		return
-		// 	}
-		// 	// Generate an error on other origins, disabling access
-		// 	cb(new Error("Not allowed"))
-		// }
+		// TODO: Set up API keys - valid key will issue a bearer token with user role valid for 10 seconds, the following is just quick and dirty
+		origin: (origin, cb) => {
+			if (app.config.IS_SAME_ORIGIN) {
+				cb(null, false)
+				return
+			} 
+			const hostname = new URL(origin).hostname
+			// Get the allowed hostname
+			const presentationHostname = app.config.PRESENTATION_HOSTNAME
+			if(hostname === presentationHostname){
+				//  Request from presentation host will pass
+				cb(null, true)
+				return
+			}
+			// Generate an error on other origins, disabling access
+			cb(new Error("Not allowed"))
+		}
 	})
 
 	// Database
