@@ -100,6 +100,23 @@ const readAllCourses = async (_db, filters) => {
   }
 }
 
+const readAllCourseTitlesAndSlugs = async (_db, filters) => {
+  const mongoFilters = filters.reduce((obj, item) => {
+    const [key] = Object.keys(item)
+    const value = item[key]
+    obj[key] = value
+    return obj
+  }, {})
+
+  try {
+    const cursor = await _db.collection('courses').aggregate([{ $match: mongoFilters}, { $project: { _id: 1, title: 1, slug: 1 } }, { $sort: { 'title': 1 } }])
+    const data = await cursor.toArray()
+    return data
+  } catch (error) {
+    throw new Error(`Course Services Read All Course Titles And Slugs ${error}`)
+  }
+} 
+
 const readCourseBySlug = async (_db, filters) => { // The slug is included in filters
   // TODO: Sanitize filters
   // TODO: Make this a seperate helper function
@@ -138,6 +155,7 @@ export {
   createCourseImages,
   deleteCourse,
   readAllCourses,
+  readAllCourseTitlesAndSlugs,
   readCourseBySlug,
   updateCourse
 }

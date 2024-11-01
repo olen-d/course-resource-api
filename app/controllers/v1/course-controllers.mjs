@@ -1,6 +1,13 @@
 import { createCourseFiles, createCourseImages } from '../../services/v1/course-services.mjs'
 import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
-import { changeCourse, getAllCourses, getCourseBySlug, newCourse, removeCourse } from '../../models/v1/course-models.mjs'
+import {
+  changeCourse,
+  getAllCourses,
+  getAllCourseTitlesAndSlugss,
+  getCourseBySlug,
+  newCourse,
+  removeCourse
+} from '../../models/v1/course-models.mjs'
 
 async function addCourse (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
@@ -150,6 +157,34 @@ async function readAllCourses (req, reply) {
   }
 }
 
+async function readAllCourseTitlesAndSlugs (req, reply) {
+  const { mongo: { db: _db } } = this
+
+  const { verifiedAuthToken: { role, sub }, } = req
+
+  const filters = []
+
+  if (role === 'superadmin') {
+    filters.push({})
+  } else if (role === 'author') {
+    filters.push({ ownerId: sub })
+  }
+
+  const result = await getAllCourseTitlesAndSlugss(_db, filters)
+  const { status } = result
+
+  if ( status === 'error' ) {
+    // TODO: Figure out what the error is and send an appropriate code
+    reply
+      .code(404)
+      .send(result)
+  } else if ( status === 'ok') {
+    reply
+      .code(200)
+      .send(result)
+  }
+}
+
 async function readCourseBySlugAll (req, reply) {
   const {
     mongo: {
@@ -293,6 +328,7 @@ export {
   addCourseImages,
   purgeCourse,
   readAllCourses,
+  readAllCourseTitlesAndSlugs,
   readCourseBySlugAll,
   readCourseBySlugPublished,
   readPublishedCourses,
