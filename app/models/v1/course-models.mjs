@@ -1,6 +1,13 @@
 import { micromark } from 'micromark'
 import { gfm, gfmHtml } from 'micromark-extension-gfm'
-import { createCourse, deleteCourse, readAllCourses, readCourseBySlug, updateCourse } from '../../services/v1/course-services.mjs'
+import {
+  createCourse,
+  deleteCourse,
+  readAllCourses,
+  readAllCourseTitlesAndSlugs,
+  readCourseBySlug,
+  updateCourse
+} from '../../services/v1/course-services.mjs'
 import { processValidations, validateTimestamp } from '../../services/v1/validate-services.mjs'
 
 const changeCourse = async (_db, _ObjectId, courseId, courseInfo) => {
@@ -50,6 +57,11 @@ const changeCourse = async (_db, _ObjectId, courseId, courseInfo) => {
 
 const getAllCourses = async (_db, filters) => {
   const data = await readAllCourses(_db, filters)
+  return Array.isArray(data) && data.length > 0 ? { status: 'ok', data } : { status: 'error' }
+}
+
+const getAllCourseTitlesAndSlugss = async (_db, filters) => {
+  const data = await readAllCourseTitlesAndSlugs(_db, filters)
   return Array.isArray(data) && data.length > 0 ? { status: 'ok', data } : { status: 'error' }
 }
 
@@ -179,6 +191,7 @@ const removeCourse = async (_db, _ObjectId, courseId) => {
 export {
   changeCourse,
   getAllCourses,
+  getAllCourseTitlesAndSlugss,
   getCourseBySlug,
   newCourse,
   removeCourse

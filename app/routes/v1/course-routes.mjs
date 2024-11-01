@@ -5,6 +5,7 @@ const routes = (app, opts, done) => {
   app.delete('/course/:id', { preHandler: app.auth([app.verifyJWT]) }, courseControllers.purgeCourse)
   app.get('/', { schema: schemas.readPublishedSchema }, courseControllers.readPublishedCourses)
   app.get('/all', { schema: schemas.readAllSchema, preHandler: app.auth([app.verifyJWT]) }, courseControllers.readAllCourses)
+  app.get('/all/titles-slugs', { preHandler: app.auth([app.verifyJWT]) }, courseControllers.readAllCourseTitlesAndSlugs)
   app.get('/:slug', {}, courseControllers.readCourseBySlugPublished)
   app.get('/:slug/all', { preHandler: app.auth([app.verifyJWT]) }, courseControllers.readCourseBySlugAll)
   app.patch('/course/:id', { preHandler: app.auth([app.verifyJWT]) }, courseControllers.updateCourse)
