@@ -1,7 +1,32 @@
 import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
 import {
+  getAdvisoriesAll,
   newAdvisory
 } from '../../models/v1/advisory-models.mjs'
+
+async function acquireAdvisoriesAll (req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId } } = this
+
+  const filters = []
+
+  try {
+    const result = await getAdvisoriesAll(_db, _ObjectId, filters)
+    const { status } = result
+  
+    if ( status === 'error' ) {
+      // TODO: Figure out what the error is and send an appropriate code
+      reply
+        .code(404)
+        .send(result)
+    } else if ( status === 'ok') {
+      reply
+        .code(200)
+        .send(result)
+    }
+  } catch (error) {
+    throw new Error(`Advisory Controllers Acquire Advisories All ${error}`)
+  }
+}
 
 async function addAdvisory (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
@@ -28,5 +53,6 @@ async function addAdvisory (req, reply) {
 }
 
 export {
+  acquireAdvisoriesAll,
   addAdvisory
 }
