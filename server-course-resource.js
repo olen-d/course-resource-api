@@ -10,6 +10,7 @@ import fastifyMultipart from 'fastify-multipart'
 
 // Routes
 import { routes as aboutRoutes } from './app/routes/v1/about-routes.mjs'
+import { routes as advisoryRoutes } from './app/routes/v1/advisory-routes.mjs'
 import { routes as authRoutes } from './app/routes/v1/auth-routes.mjs'
 import { routes as courseRoutes } from './app/routes/v1/course-routes.mjs'
 import { routes as difficultyRoutes } from './app/routes/v1/difficulty-routes.mjs'
@@ -211,6 +212,7 @@ const initialize = async () => {
 
 	// Register the routes
 	app.register(aboutRoutes, { prefix: 'api/v1/about' })
+	app.register(advisoryRoutes, { prefix: '/api/v1/advisories' })
 	app.register(authRoutes, { prefix: 'api/v1/auth' })
 	app.register(courseRoutes, { prefix: 'api/v1/courses' })
 	app.register(difficultyRoutes, { prefix: 'api/v1/difficulty' })
