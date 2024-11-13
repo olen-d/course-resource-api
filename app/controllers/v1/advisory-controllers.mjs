@@ -64,6 +64,56 @@ async function acquireAdvisoryById (req, reply) {
   }
 }
 
+async function acquireAdvisoryPublishedById (req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId } } = this
+  const { body, params: { id }, } = req
+  const objId = _ObjectId(id)
+
+  const filters = [{ _id: objId, isPublished: true }]
+  try {
+    const result = await getAdvisoriesAll(_db, filters)
+    const { status } = result
+
+    if ( status === 'error' ) {
+      // TODO: Figure out what the error is and send an appropriate code
+      reply
+        .code(404)
+        .send(result)
+    } else if ( status === 'ok') {
+      reply
+        .code(200)
+        .send(result)
+    }
+  } catch (error) {
+    throw new Error(`Advisory Controllers Read Advisories All ${error}`)
+  }
+}
+
+async function acquireAdvisoryPublishedByRouteId (req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId } } = this
+  const { body, params: { id }, } = req
+  const objId = _ObjectId(id)
+
+  const filters = [{ coursesAffected: objId, isPublished: true }]
+  try {
+    const result = await getAdvisoriesAll(_db, filters)
+    const { status } = result
+
+    if ( status === 'error' ) {
+      // TODO: Figure out what the error is and send an appropriate code
+      reply
+        .code(404)
+        .send(result)
+    } else if ( status === 'ok') {
+      reply
+        .code(200)
+        .send(result)
+    }
+  } catch (error) {
+    throw new Error(`Advisory Controllers Read Advisories All ${error}`)
+  }
+}
+
 async function addAdvisory (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
   const { body, verifiedAuthToken: { role, sub: creatorId}, } = req
@@ -121,6 +171,8 @@ async function reviseAdvisory (req, reply) {
 export {
   acquireAdvisoriesAll,
   acquireAdvisoryById,
+  acquireAdvisoryPublishedById,
+  acquireAdvisoryPublishedByRouteId,
   addAdvisory,
   reviseAdvisory
 }
