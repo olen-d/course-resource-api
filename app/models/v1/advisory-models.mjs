@@ -1,16 +1,53 @@
 import {
   createAdvisory,
-  readAdvisoriesAll
+  readAdvisoriesAll,
+  updateAdvisory
 } from '../../services/v1/advisory-services.mjs'
 
 import {
   readUserById
 } from '../../services/v1/user-services.mjs'
-import { validateFirstName } from '../../services/v1/validate-services.mjs'
 
-const getAdvisoriesAll = async (_db, _ObjectId, filters) => {
+const changeAdvisory = async (_db, _ObjectId, info) => {
+  const { advisoryId: itemId, authorId, coursesAffected, ...rest } = info
+
+  const coursesAffectedObjIds = coursesAffected.map(element => {
+    return _ObjectId(element)
+  })
+  rest.coursesAffected = coursesAffectedObjIds
+
+  const infoProcessed = { $set: {} }
+
+  for (const key of Object.keys(rest)) {
+    infoProcessed.$set[key] = rest[key]
+  }
+
   try {
-    const data = await readAdvisoriesAll(_db, _ObjectId, filters)
+    const userInfo = {}
+    const updatedInfo = {}
+
+    userInfo.userId = authorId
+    const userData = await readUserById(_db, _ObjectId, userInfo)
+    const updateTimestamp = Date.now()
+
+    if (userData?.firstName && userData?.lastName) {
+      const { firstName, lastName } = userData
+      updatedInfo.by = { userId: authorId, firstName, lastName }
+      updatedInfo.at = updateTimestamp
+    } else {
+      updatedInfo.by = { userId: authorId, firstName: null, lastName: null }
+      updatedInfo.at = updateTimestamp
+    }
+    const data = await updateAdvisory(_db, _ObjectId, itemId, infoProcessed, updatedInfo)
+    return { status: 'ok', data }
+  } catch (error) {
+    throw new Error(`Advisory Models Change Advisory ${error}`)
+  }
+}
+
+const getAdvisoriesAll = async (_db, filters) => {
+  try {
+    const data = await readAdvisoriesAll(_db, filters)
     if (Array.isArray(data) && data.length > 0) {
       return { status: 'ok', data }
     } else {
@@ -53,6 +90,7 @@ const newAdvisory = async (_db, _ObjectId, info) => {
 }
 
 export {
+  changeAdvisory,
   getAdvisoriesAll,
   newAdvisory
 }
