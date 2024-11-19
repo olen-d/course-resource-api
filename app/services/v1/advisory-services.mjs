@@ -37,6 +37,24 @@ const readAdvisoriesAll = async (_db, filters) => {
   }
 }
 
+const readAdvisoriesCoursesIds = async (_db, filters) => {
+  // TODO: Sanitize filters
+  // TODO: Make this a seperate helper function
+  const mongoFilters = filters.reduce((obj, item) => {
+    const [key] = Object.keys(item)
+    const value = item[key]
+    obj[key] = value
+    return obj
+  }, {})
+
+  try {
+    const data = await _db.collection('advisories').distinct('coursesAffected', mongoFilters)
+    return data
+  } catch (error) {
+    throw new Error(`Advisory Services Read Advisories Courses Ids ${error}`)
+  }
+}
+
 const updateAdvisory = async (_db, _ObjectId, itemId, info, updateInfo) => {
   const itemObjId = _ObjectId(itemId)
 
@@ -59,5 +77,6 @@ const updateAdvisory = async (_db, _ObjectId, itemId, info, updateInfo) => {
 export {
   createAdvisory,
   readAdvisoriesAll,
+  readAdvisoriesCoursesIds,
   updateAdvisory
 }

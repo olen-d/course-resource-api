@@ -2,6 +2,7 @@ import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
 import {
   changeAdvisory,
   getAdvisoriesAll,
+  getAdvisoriesCoursesIds,
   newAdvisory
 } from '../../models/v1/advisory-models.mjs'
 
@@ -26,6 +27,29 @@ async function acquireAdvisoriesAll (req, reply) {
     }
   } catch (error) {
     throw new Error(`Advisory Controllers Acquire Advisories All ${error}`)
+  }
+}
+
+async function acquireAdvisoriesCoursesIds (req, reply) {
+  const { mongo: { db: _db } } = this
+
+  const filters = [{ isPublished: true }]
+  try {
+    const result = await getAdvisoriesCoursesIds(_db, filters)
+    const { status } = result
+
+    if ( status === 'error' ) {
+      // TODO: Figure out what the error is and send an appropriate code
+      reply
+        .code(404)
+        .send(result)
+    } else if ( status === 'ok') {
+      reply
+        .code(200)
+        .send(result)
+    }
+  } catch (error) {
+    throw new Error(`Advisory Controllers Acquire Advisories Courses Ids ${error}`)
   }
 }
 
@@ -170,6 +194,7 @@ async function reviseAdvisory (req, reply) {
 
 export {
   acquireAdvisoriesAll,
+  acquireAdvisoriesCoursesIds,
   acquireAdvisoryById,
   acquireAdvisoryPublishedById,
   acquireAdvisoryPublishedByRouteId,
