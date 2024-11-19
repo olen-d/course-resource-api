@@ -1,6 +1,7 @@
 import {
   createAdvisory,
   readAdvisoriesAll,
+  readAdvisoriesCoursesIds,
   updateAdvisory
 } from '../../services/v1/advisory-services.mjs'
 
@@ -58,6 +59,19 @@ const getAdvisoriesAll = async (_db, filters) => {
   }
 }
 
+const getAdvisoriesCoursesIds = async (_db, filters) => {
+  try {
+    const data = await readAdvisoriesCoursesIds(_db, filters)
+    if (Array.isArray(data) && data.length > 0) {
+      return { status: 'ok', data }
+    } else {
+      return { status: 'error' }
+    }
+  } catch (error) {
+    throw new Error(`Advisory Models Get Advisories Courses Ids ${error}`)
+  }
+}
+
 const newAdvisory = async (_db, _ObjectId, info) => {
   const foundValidationError = - 1 // Delete this when the validations are completed
   if (foundValidationError === -1) {
@@ -92,5 +106,6 @@ const newAdvisory = async (_db, _ObjectId, info) => {
 export {
   changeAdvisory,
   getAdvisoriesAll,
+  getAdvisoriesCoursesIds,
   newAdvisory
 }
