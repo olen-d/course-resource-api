@@ -18,6 +18,17 @@ const createAdvisory = async (_db, _ObjectId, info) => {
   }
 }
 
+const deleteAdvisory = async (_db, advisoryId) => {
+  const filter = { _id: advisoryId }
+
+  try {
+    const result = await _db.collection('advisories').findOneAndDelete(filter)
+    return result
+  } catch (error) {
+    throw new Error(`Advisory Services Delete Advisory ${error}`)
+  }
+}
+
 const readAdvisoriesAll = async (_db, filters) => {
   // TODO: Sanitize filters
   // TODO: Make this a seperate helper function
@@ -76,6 +87,7 @@ const updateAdvisory = async (_db, _ObjectId, itemId, info, updateInfo) => {
 
 export {
   createAdvisory,
+  deleteAdvisory,
   readAdvisoriesAll,
   readAdvisoriesCoursesIds,
   updateAdvisory

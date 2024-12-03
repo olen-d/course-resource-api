@@ -3,7 +3,8 @@ import {
   changeAdvisory,
   getAdvisoriesAll,
   getAdvisoriesCoursesIds,
-  newAdvisory
+  newAdvisory,
+  removeAdvisory
 } from '../../models/v1/advisory-models.mjs'
 
 async function acquireAdvisoriesAll (req, reply) {
@@ -162,6 +163,25 @@ async function addAdvisory (req, reply) {
   }
 }
 
+async function purgeAdvisory (req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId} } = this
+  const { params: { id: advisoryId }, verifiedAuthToken: { role, sub } } = req
+
+  const rolesAuthorized = ['author', 'admin', 'superadmin']
+  const canUpdate = rolesAuthorized.indexOf(role) !== -1
+
+  try {
+    if (canUpdate) {
+      const result = await removeAdvisory(_db, _ObjectId, advisoryId)
+      return result
+    } else {
+      throw new Error('current role cannot delete an advisory')
+    }
+  } catch (error) {
+    throw new Error(`Advisory Controllers Purge Advisory ${error}`)
+  }
+}
+
 async function reviseAdvisory (req, reply) {
   try {
     const { mongo: { db: _db, ObjectId: _ObjectId } } = this
@@ -199,5 +219,6 @@ export {
   acquireAdvisoryPublishedById,
   acquireAdvisoryPublishedByRouteId,
   addAdvisory,
+  purgeAdvisory,
   reviseAdvisory
 }
