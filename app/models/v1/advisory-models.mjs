@@ -1,5 +1,6 @@
 import {
   createAdvisory,
+  deleteAdvisory,
   readAdvisoriesAll,
   readAdvisoriesCoursesIds,
   updateAdvisory
@@ -103,9 +104,22 @@ const newAdvisory = async (_db, _ObjectId, info) => {
   }
 }
 
+const removeAdvisory = async (_db, _ObjectId, advisoryId) => {
+  const advisoryObjId = _ObjectId(advisoryId)
+
+  try {
+    const data = await deleteAdvisory(_db, advisoryObjId)
+    // TODO: check for error and return to view level
+    return { status: 'ok', data }
+  } catch (error) {
+    throw new Error(`Advisory Models Remove Advisory ${error}`)
+  }
+}
+
 export {
   changeAdvisory,
   getAdvisoriesAll,
   getAdvisoriesCoursesIds,
-  newAdvisory
+  newAdvisory,
+  removeAdvisory
 }
