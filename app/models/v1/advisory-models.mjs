@@ -13,10 +13,12 @@ import {
 const changeAdvisory = async (_db, _ObjectId, info) => {
   const { advisoryId: itemId, authorId, coursesAffected, ...rest } = info
 
-  const coursesAffectedObjIds = coursesAffected.map(element => {
-    return _ObjectId(element)
-  })
-  rest.coursesAffected = coursesAffectedObjIds
+  if (coursesAffected) {
+    const coursesAffectedObjIds = coursesAffected.map(element => {
+      return _ObjectId(element)
+    })
+    rest.coursesAffected = coursesAffectedObjIds
+  }
 
   const infoProcessed = { $set: {} }
 

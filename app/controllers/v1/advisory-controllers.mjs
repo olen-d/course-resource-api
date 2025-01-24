@@ -10,7 +10,7 @@ import {
 async function acquireAdvisoriesAll (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
 
-  const filters = []
+  const filters = {}
 
   try {
     const result = await getAdvisoriesAll(_db, filters)
@@ -64,7 +64,7 @@ async function acquireAdvisoryById (req, reply) {
     const canRead = rolesAuthorized.indexOf(role) !== -1
 
     if (canRead) {
-      const filters = [{ _id: objId }]
+      const filters = { _id: objId }
 
       const result = await getAdvisoriesAll(_db, filters)
       const { status } = result
@@ -119,7 +119,7 @@ async function acquireAdvisoryPublishedByRouteId (req, reply) {
   const { body, params: { id }, } = req
   const objId = _ObjectId(id)
 
-  const filters = [{ coursesAffected: objId, isPublished: true }]
+  const filters = { '$and': [{ coursesAffected: objId, isPublished: true }] }
   try {
     const result = await getAdvisoriesAll(_db, filters)
     const { status } = result
@@ -193,7 +193,6 @@ async function reviseAdvisory (req, reply) {
     if (canUpdate) {
       const trimmed = trimAll(body)
       const info = sanitizeAll(trimmed)
-
       info.advisoryId = id
       info.authorId = sub
       // TODO: Check that the userId in the client submittal equals the userId from the token (i.e. sub)
