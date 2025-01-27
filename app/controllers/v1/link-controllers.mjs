@@ -66,9 +66,10 @@ async function readLinkByIdAll (req, reply) {
 
   const { params: { id } } = req
   const objId = _ObjectId(id)
+  filters.push({ _id: objId })
 
   try {
-    const result = await getLinkById(_db, filters, objId)
+    const result = await getLinkById(_db, filters)
     const { status } = result
   
     if ( status === 'error' ) {

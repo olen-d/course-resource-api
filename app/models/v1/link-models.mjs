@@ -26,10 +26,7 @@ const getAllLinks = async (_db, filters) => {
   }
 }
 
-const getLinkById = async (_db, filters, objId) => {
-  // TODO: Santize the id
-  filters.push({ _id: objId })
-
+const getLinkById = async (_db, filters) => {
   try{
     const data = await readLinkById(_db, filters)
     if(Array.isArray(data) && data.length > 0) {
