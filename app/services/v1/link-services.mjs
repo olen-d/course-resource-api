@@ -11,6 +11,18 @@ const createLink = async (_db, _ObjectId, linkInfo) => {
   }
 }
 
+const deleteLink = async (_db, info) => {
+  const { linkObjId } = info
+  const filter = { _id: linkObjId }
+
+  try {
+    const result = await _db.collection('links').findOneAndDelete(filter)
+    return result
+  } catch (error) {
+    throw new Error(`Link Services Delete Link ${error}`)
+  }
+}
+
 const readAllLinks = async (_db, filters) => {
   // TODO: Sanitize filters
   // TODO: Make this a seperate helper function
@@ -60,4 +72,10 @@ const updateLink = async (_db, linkInfo, objId) => {
   }
  }
 
-export { createLink, readAllLinks, readLinkById, updateLink }
+export {
+  createLink,
+  deleteLink,
+  readAllLinks,
+  readLinkById,
+  updateLink
+}

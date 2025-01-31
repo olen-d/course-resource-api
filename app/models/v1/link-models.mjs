@@ -1,4 +1,10 @@
-import { createLink, readAllLinks, readLinkById, updateLink } from '../../services/v1/link-services.mjs'
+import {
+  createLink,
+  deleteLink,
+  readAllLinks,
+  readLinkById,
+  updateLink
+} from '../../services/v1/link-services.mjs'
 
 const changeLink= async (_db, linkInfo, objId) => {
   const linkInfoProcessed = { $set: {} }
@@ -70,4 +76,23 @@ const newLink = async (_db, _ObjectId, linkInfo) => {
   }
 }
 
-export { changeLink, getAllLinks, getLinkById, newLink }
+const removeLink = async (_db, _ObjectId, info) => {
+  const { linkId } = info
+  const linkObjId = _ObjectId(linkId)
+
+  try {
+    const data = await deleteLink(_db, { linkObjId })
+    // TODO: check for error and return to view level
+    return { status: 'ok', data }
+  } catch (error) {
+    throw new Error(`Link Models Remove Link ${error}`)
+  }
+}
+
+export {
+  changeLink,
+  getAllLinks,
+  getLinkById,
+  newLink,
+  removeLink
+}
