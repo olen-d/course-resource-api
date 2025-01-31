@@ -1,10 +1,16 @@
 import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
-import { changeLink, getAllLinks, getLinkById, newLink } from '../../models/v1/link-models.mjs'
+import {
+  changeLink,
+  getAllLinks,
+  getLinkById,
+  newLink,
+  removeLink
+} from '../../models/v1/link-models.mjs'
 
 async function addLink (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
 
-  const { body, verifiedAuthToken: { role, sub }, } = req
+  const { body, verifiedAuthToken: { role, sub: creatorId }, } = req
   // Array of roles authorized to create courses
   const rolesAuthorized = ['siteadmin', 'superadmin']
   const canCreate = rolesAuthorized.indexOf(role) !== -1
@@ -12,6 +18,8 @@ async function addLink (req, reply) {
   if (canCreate) {
     const trimmed = trimAll(body)
     const linkInfo = sanitizeAll(trimmed)
+    linkInfo.creatorId = creatorId
+    linkInfo.ownerId = creatorId
     // TODO: Check that the userId in the client submittal equals the userId from the token (i.e. sub)
     try {
       const result = await newLink(_db, _ObjectId, linkInfo)
@@ -21,6 +29,25 @@ async function addLink (req, reply) {
     }
   } else {
     reply.code(403).send({ status: 'error', messsage: 'current role cannot create a link' })
+  }
+}
+
+async function purgeLink (req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId} } = this
+  const { params: { id: linkId }, verifiedAuthToken: { role, sub } } = req
+
+  const rolesAuthorized = ['author', 'admin', 'superadmin']
+  const canPurge = rolesAuthorized.indexOf(role) !== -1
+
+  try {
+    if (canPurge) {
+      const result = await removeLink(_db, _ObjectId, { linkId })
+      return result
+    } else {
+      throw new Error('current role cannot delete a link')
+    }
+  } catch (error) {
+    throw new Error(`Link Controllers Purge Link ${error}`)
   }
 }
 
@@ -137,4 +164,11 @@ async function updateLink (req, reply) {
   }
 }
 
-export { addLink, readAllLinks, readLinkByIdAll, readPublishedLinks, updateLink }
+export {
+  addLink,
+  purgeLink,
+  readAllLinks,
+  readLinkByIdAll,
+  readPublishedLinks,
+  updateLink
+}
