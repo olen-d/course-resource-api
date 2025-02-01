@@ -55,9 +55,13 @@ const changeCourse = async (_db, _ObjectId, courseId, courseInfo) => {
   }
 }
 
-const getAllCourses = async (_db, filters) => {
-  const data = await readAllCourses(_db, filters)
-  return Array.isArray(data) && data.length > 0 ? { status: 'ok', data } : { status: 'error' }
+const getAllCourses = async (_db, filters, info) => {
+  try {
+    const data = await readAllCourses(_db, filters, info)
+    return Array.isArray(data) && data.length > 0 ? { status: 'ok', data } : { status: 'error' }
+  } catch (error) {
+    throw new Error(`Course Models Get All Courses ${error}`)
+  }
 }
 
 const getAllCourseTitlesAndSlugss = async (_db, filters) => {

@@ -112,7 +112,7 @@ async function updateCourse (req, reply) {
   }
 }
 
-async function readAllCourses (req, reply) {
+async function readAllCourses (request, reply) {
   const {
     mongo: {
       db: _db
@@ -126,7 +126,16 @@ async function readAllCourses (req, reply) {
     }
   } = this
 
-  const { verifiedAuthToken: { role, sub }, } = req
+  const { verifiedAuthToken: { role, sub }, } = request
+
+  const info = {}
+  if (Object.keys(request?.query).length === 0) {
+    info.all = true
+  } else {
+    const { query: { limit }, } = request
+    info.type = 'limit'
+    info.limit = limit
+  }
 
   const filters = []
 
@@ -138,22 +147,26 @@ async function readAllCourses (req, reply) {
 
   // const filters = [{ isPublished: true }, { publishOn: { $lte: new Date() } }]
   // const filters = [{}]
-  const result = await getAllCourses(_db, filters)
-  const { status } = result
-
-  if ( status === 'error' ) {
-    // TODO: Figure out what the error is and send an appropriate code
-    reply
-      .code(404)
-      .send(result)
-  } else if ( status === 'ok') {
-    const paths = { pathFilesImages, pathFilesOriginals, pathFilesThumbnails}
-    const prefixes = { prefixFilesImages, prefixFilesThumbnails}
-    result.paths = { ...paths }
-    result.prefixes = { ...prefixes }
-    reply
-      .code(200)
-      .send(result)
+  try{
+    const result = await getAllCourses(_db, filters, info)
+    const { status } = result
+  
+    if ( status === 'error' ) {
+      // TODO: Figure out what the error is and send an appropriate code
+      reply
+        .code(404)
+        .send(result)
+    } else if ( status === 'ok') {
+      const paths = { pathFilesImages, pathFilesOriginals, pathFilesThumbnails}
+      const prefixes = { prefixFilesImages, prefixFilesThumbnails}
+      result.paths = { ...paths }
+      result.prefixes = { ...prefixes }
+      reply
+        .code(200)
+        .send(result)
+    }
+  } catch (error) {
+    throw new Error (`Course Controllers Read All Courses ${error}`)
   }
 }
 
