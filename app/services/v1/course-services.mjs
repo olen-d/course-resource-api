@@ -80,7 +80,7 @@ const deleteCourse = async (_db, courseId) => {
   }
 }
 
-const readAllCourses = async (_db, filters) => {
+const readAllCourses = async (_db, filters, info) => {
   // TODO: Sanitize filters
   // TODO: Make this a seperate helper function
   const mongoFilters = filters.reduce((obj, item) => {
@@ -89,14 +89,42 @@ const readAllCourses = async (_db, filters) => {
     obj[key] = value
     return obj
   }, {})
-  // const cursor = await _db.collection('courses').aggregate([{ $match: mongoFilters }, { $lookup: { from: 'users', localField: 'creatorId', foreignField: '_id', as: 'userFullname' } }, { $project: { userFullname: { _id:0, emailAddress: 0, passwordHash: 0, role: 0, username: 0, createdBy: 0 } } }])
-  const cursor = await _db.collection('courses').aggregate([{ $match: mongoFilters }, { $lookup: { from: 'difficulty', localField: 'difficulty', foreignField: '_id', as: 'difficultyLevel' } }, { $project: { difficultyLevel: { _id: 0, creatorId: 0, ownerId: 0 } } }, { $sort: { 'publishOn': -1 } }])
 
+  const aggregation = [
+    { $match: mongoFilters },
+    {
+      $lookup: {
+        from: 'difficulty',
+        localField: 'difficulty',
+        foreignField: '_id',
+        as: 'difficultyLevel' 
+      }
+    },
+    {
+      $project: {
+        difficultyLevel: {
+          _id: 0,
+          creatorId: 0,
+          ownerId: 0
+        }
+      }
+    },
+    { $sort: { 'publishOn': -1 } }
+  ]
+
+  if (info?.type === 'limit') {
+    const { limit } = info
+    const limitAsNumber = Number(limit)
+
+    aggregation.push({ $limit: limitAsNumber })
+  }
+
+  const cursor = await _db.collection('courses').aggregate(aggregation)
   try {
     const data = await cursor.toArray()
     return data
   } catch (error) {
-    console.log('ERROR:', error)
+    throw new Error(`Course Services Read All Courses ${error}`)
   }
 }
 
