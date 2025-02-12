@@ -1,5 +1,46 @@
 import { sanitizeAll, trimAll } from "../../services/v1/input-services.mjs";
-import { changeAboutItem, getAboutItemBySlug, getAllAboutItems, newAboutItem } from "../../models/v1/about-models.mjs";
+import {
+  changeAboutItem,
+  getAboutItemById,
+  getAboutItemBySlug,
+  getAllAboutItems,
+  newAboutItem
+} from "../../models/v1/about-models.mjs";
+
+async function acquireAboutItemAllById (req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId } } = this
+
+  const { verifiedAuthToken: { role, sub }, } = req
+
+  const filters = []
+
+  if (role === 'superadmin') {
+    filters.push({})
+  } else if (role === 'siteadmin') {
+    filters.push({ ownerId: sub })
+  }
+
+  const { params: { id } } = req
+  const info = { id }
+
+  try {
+    const result = await getAboutItemById(_db, _ObjectId, filters, info)
+    const { status } = result
+  
+    if ( status === 'error' ) {
+      // TODO: Figure out what the error is and send an appropriate code
+      reply
+        .code(404)
+        .send(result)
+    } else if ( status === 'ok') {
+      reply
+        .code(200)
+        .send(result)
+    }
+  } catch (error) {
+    throw new Error (`About Controllers Acquire About Item All By Id ${error}`)
+  }
+}
 
 async function addAboutItem (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
@@ -113,4 +154,11 @@ async function updateAboutItem (req, reply) {
   }
 }
 
-export { addAboutItem, readAboutItemBySlugAll, readAllAboutItems, readPublishedAboutItems, updateAboutItem }
+export {
+  acquireAboutItemAllById,
+  addAboutItem,
+  readAboutItemBySlugAll,
+  readAllAboutItems,
+  readPublishedAboutItems,
+  updateAboutItem
+}
