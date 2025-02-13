@@ -5,7 +5,7 @@ import {
   deleteCourse,
   readAllCourses,
   readAllCourseTitlesAndSlugs,
-  readCourseBySlug,
+  readCourse,
   updateCourse
 } from '../../services/v1/course-services.mjs'
 import { processValidations, validateTimestamp } from '../../services/v1/validate-services.mjs'
@@ -69,11 +69,8 @@ const getAllCourseTitlesAndSlugss = async (_db, filters) => {
   return Array.isArray(data) && data.length > 0 ? { status: 'ok', data } : { status: 'error' }
 }
 
-const getCourseBySlug = async (_db, filters, slug) => {
-  // TODO: Santize the slug
-  filters.push({ slug })
-
-  const data = await readCourseBySlug(_db, filters)
+const getCourse = async (_db, filters) => {
+  const data = await readCourse(_db, filters)
   if(Array.isArray(data) && data.length > 0) {
     const [{ summary, userFullname: [{ firstName, lastName }] }] = data
     const summaryHtml = micromark(summary, {
@@ -196,7 +193,7 @@ export {
   changeCourse,
   getAllCourses,
   getAllCourseTitlesAndSlugss,
-  getCourseBySlug,
+  getCourse,
   newCourse,
   removeCourse
 }
