@@ -4,10 +4,42 @@ import {
   changeCourse,
   getAllCourses,
   getAllCourseTitlesAndSlugss,
-  getCourseBySlug,
+  getCourse,
   newCourse,
   removeCourse
 } from '../../models/v1/course-models.mjs'
+
+// Helper functions
+const getOwnerFilter = verifiedAuthToken => {
+  const { role, sub } = verifiedAuthToken
+
+  if (role === 'superadmin') {
+    return {}
+  } else if (role === 'author') {
+    return { ownerId: sub }
+  }
+}
+
+function getPaths (config) {
+  const {
+    PATH_FILES_IMAGES: pathFilesImages,
+    PATH_FILES_ORIGINALS: pathFilesOriginals,
+    PATH_FILES_THUMBNAILS: pathFilesThumbnails,
+  } = config
+  const paths = { pathFilesImages, pathFilesOriginals, pathFilesThumbnails }
+  return paths
+}
+
+function getPrefixes (config) {
+  const {
+    PREFIX_FILES_IMAGES: prefixFilesImages,
+    PREFIX_FILES_THUMBNAILS: prefixFilesThumbnails
+  } = config
+  const prefixes = { prefixFilesImages, prefixFilesThumbnails }
+  return prefixes
+}
+
+// End Helper Functions
 
 async function addCourse (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
@@ -198,32 +230,58 @@ async function readAllCourseTitlesAndSlugs (req, reply) {
   }
 }
 
-async function readCourseBySlugAll (req, reply) {
-  const {
-    mongo: {
-      db: _db
-    },
-    config: {
-      PATH_FILES_IMAGES: pathFilesImages,
-      PATH_FILES_ORIGINALS: pathFilesOriginals,
-      PATH_FILES_THUMBNAILS: pathFilesThumbnails,
-      PREFIX_FILES_IMAGES: prefixFilesImages,
-      PREFIX_FILES_THUMBNAILS: prefixFilesThumbnails
-    }
-  } = this
+async function acquireCourseByIdAll (req, reply) {
+  const { config, mongo: { db: _db, ObjectId: _ObjectId }, } = this
+  const { params: { id }, verifiedAuthToken } = req
 
-  const { verifiedAuthToken: { role, sub }, } = req
+  const filters = []
+  filters.push(getOwnerFilter(verifiedAuthToken))
+
+  const objId = _ObjectId(id)
+  filters.push({ _id: objId })
+
+  try {
+    const result = await getCourse(_db, filters)
+    const { status } = result
+    if (status === 'error') {
+      // TODO: Figure out what the error is and send an appropriate code
+      reply
+        .code(404)
+        .send(result)
+    } else if ( status === 'ok') {
+      const paths = getPaths(config)
+      const prefixes = getPrefixes(config)
+      result.paths = { ...paths }
+      result.prefixes = { ...prefixes }
+      reply
+        .code(200)
+        .send(result)
+    }
+  } catch (error) {
+    throw new Error(`Course Controllers Acquire Course By Id All ${error}`)
+  }
+}
+
+async function acquireCourseBySlugAll (req, reply) {
+
+}
+// readcourse
+// filters...
+// id
+// slug
+// isPublished?
+
+
+async function readCourseBySlugAll (req, reply) {
+  const { config, mongo: { db: _db }, } = this
+  const { params: { slug }, verifiedAuthToken } = req
 
   const filters = []
 
-  if (role === 'superadmin') {
-    filters.push({})
-  } else if (role === 'author') {
-    filters.push({ ownerId: sub })
-  }
+  filters.push(getOwnerFilter(verifiedAuthToken))
+  filters.push({ slug })
 
-  const { params: { slug } } = req
-  const result = await getCourseBySlug(_db, filters, slug)
+  const result = await getCourse(_db, filters)
   const { status } = result
 
   if ( status === 'error' ) {
@@ -232,8 +290,8 @@ async function readCourseBySlugAll (req, reply) {
       .code(404)
       .send(result)
   } else if ( status === 'ok') {
-    const paths = { pathFilesImages, pathFilesOriginals, pathFilesThumbnails}
-    const prefixes = { prefixFilesImages, prefixFilesThumbnails}
+    const paths = getPaths(config)
+    const prefixes = getPrefixes(config)
     result.paths = { ...paths }
     result.prefixes = { ...prefixes }
     reply
@@ -336,6 +394,7 @@ async function readPublishedCourses (req, reply) {
 // }
 
 export {
+  acquireCourseByIdAll,
   addCourse,
   addCourseFiles,
   addCourseImages,

@@ -2,7 +2,6 @@ import * as fsPromises from 'fs/promises'
 import sharp from 'sharp'
 import { pipeline } from 'stream'
 import * as util from 'util'
-import { getCourseBySlug } from '../../models/v1/course-models.mjs'
 
 const createCourse = async (_db, _ObjectId, newCourse) => {
   try {
@@ -17,6 +16,7 @@ const createCourse = async (_db, _ObjectId, newCourse) => {
     console.log('ERROR:', error)
   }
 }
+
 const createCourseFiles = async (req, pathFilesCourses) => {
   const pump = util.promisify(pipeline)
   try {
@@ -145,7 +145,7 @@ const readAllCourseTitlesAndSlugs = async (_db, filters) => {
   }
 } 
 
-const readCourseBySlug = async (_db, filters) => { // The slug is included in filters
+const readCourse = async (_db, filters) => { // The id or slug is included in filters
   // TODO: Sanitize filters
   // TODO: Make this a seperate helper function
   const mongoFilters = filters.reduce((obj, item) => {
@@ -156,7 +156,6 @@ const readCourseBySlug = async (_db, filters) => { // The slug is included in fi
   }, {})
 
   try {
-    // const cursor = await _db.collection('courses').aggregate([{ $match: mongoFilters }, { $lookup: { from: 'difficulty', localField: 'difficulty', foreignField: '_id', as: 'difficultyLevel' } }, { $project: { difficultyLevel: { _id: 0, creatorId: 0, ownerId: 0 } } }, { $sort: { 'publishOn': -1 } }])
     const cursor = await _db.collection('courses').aggregate([{ $match: mongoFilters }, { $lookup: { from: 'users', localField: 'creatorId', foreignField: '_id', as: 'userFullname' } }, { $lookup: { from: 'difficulty', localField: 'difficulty', foreignField: '_id', as: 'difficultyLevel' } }, { $project: { userFullname: { _id:0, emailAddress: 0, passwordHash: 0, role: 0, username: 0, createdBy: 0 } } }])
     const data = await cursor.limit(1).toArray()
     return data
@@ -184,6 +183,6 @@ export {
   deleteCourse,
   readAllCourses,
   readAllCourseTitlesAndSlugs,
-  readCourseBySlug,
+  readCourse,
   updateCourse
 }
