@@ -145,20 +145,9 @@ async function updateCourse (req, reply) {
 }
 
 async function readAllCourses (request, reply) {
-  const {
-    mongo: {
-      db: _db
-    },
-    config: {
-      PATH_FILES_IMAGES: pathFilesImages,
-      PATH_FILES_ORIGINALS: pathFilesOriginals,
-      PATH_FILES_THUMBNAILS: pathFilesThumbnails,
-      PREFIX_FILES_IMAGES: prefixFilesImages,
-      PREFIX_FILES_THUMBNAILS: prefixFilesThumbnails
-    }
-  } = this
+  const { config, mongo: { db: _db }, } = this
 
-  const { verifiedAuthToken: { role, sub }, } = request
+  const { verifiedAuthToken } = request
 
   const info = {}
   if (Object.keys(request?.query).length === 0) {
@@ -170,12 +159,7 @@ async function readAllCourses (request, reply) {
   }
 
   const filters = []
-
-  if (role === 'superadmin') {
-    filters.push({})
-  } else if (role === 'author') {
-    filters.push({ ownerId: sub })
-  }
+  filters.push(getOwnerFilter(verifiedAuthToken))
 
   // const filters = [{ isPublished: true }, { publishOn: { $lte: new Date() } }]
   // const filters = [{}]
@@ -189,8 +173,8 @@ async function readAllCourses (request, reply) {
         .code(404)
         .send(result)
     } else if ( status === 'ok') {
-      const paths = { pathFilesImages, pathFilesOriginals, pathFilesThumbnails}
-      const prefixes = { prefixFilesImages, prefixFilesThumbnails}
+      const paths = getPaths(config)
+      const prefixes = getPrefixes(config)
       result.paths = { ...paths }
       result.prefixes = { ...prefixes }
       reply
@@ -205,15 +189,10 @@ async function readAllCourses (request, reply) {
 async function readAllCourseTitlesAndSlugs (req, reply) {
   const { mongo: { db: _db } } = this
 
-  const { verifiedAuthToken: { role, sub }, } = req
+  const { verifiedAuthToken } = req
 
   const filters = []
-
-  if (role === 'superadmin') {
-    filters.push({})
-  } else if (role === 'author') {
-    filters.push({ ownerId: sub })
-  }
+  filters.push(getOwnerFilter(verifiedAuthToken))
 
   const result = await getAllCourseTitlesAndSlugss(_db, filters)
   const { status } = result
@@ -262,16 +241,6 @@ async function acquireCourseByIdAll (req, reply) {
   }
 }
 
-async function acquireCourseBySlugAll (req, reply) {
-
-}
-// readcourse
-// filters...
-// id
-// slug
-// isPublished?
-
-
 async function readCourseBySlugAll (req, reply) {
   const { config, mongo: { db: _db }, } = this
   const { params: { slug }, verifiedAuthToken } = req
@@ -301,54 +270,36 @@ async function readCourseBySlugAll (req, reply) {
 }
 
 async function readCourseBySlugPublished (req, reply) {
-  const {
-    mongo: {
-      db: _db
-    },
-    config: {
-      PATH_FILES_IMAGES: pathFilesImages,
-      PATH_FILES_ORIGINALS: pathFilesOriginals,
-      PATH_FILES_THUMBNAILS: pathFilesThumbnails,
-      PREFIX_FILES_IMAGES: prefixFilesImages,
-      PREFIX_FILES_THUMBNAILS: prefixFilesThumbnails
-    }
-  } = this
+  const { config, mongo: { db: _db }, } = this
 
   const { params: { slug } } = req
-  const filters = [{ isPublished: true }, { publishOn: { $lte: new Date() } }]
-  const result = await getCourseBySlug(_db, filters, slug)
-  const { status } = result
+  const filters = [{ isPublished: true }, { publishOn: { $lte: new Date() } }, { slug }]
 
-  if ( status === 'error' ) {
-    // TODO: Figure out what the error is and send an appropriate code
-    reply
-      .code(404)
-      .send(result)
-  } else if ( status === 'ok') {
-    const paths = { pathFilesImages, pathFilesOriginals, pathFilesThumbnails}
-    const prefixes = { prefixFilesImages, prefixFilesThumbnails}
-    result.paths = { ...paths }
-    result.prefixes = { ...prefixes }
-    reply
-      .code(200)
-      .send(result)
+  try {
+    const result = await getCourse(_db, filters)
+    const { status } = result
+  
+    if ( status === 'error' ) {
+      // TODO: Figure out what the error is and send an appropriate code
+      reply
+        .code(404)
+        .send(result)
+    } else if ( status === 'ok') {
+      const paths = getPaths(config)
+      const prefixes = getPrefixes(config)
+      result.paths = { ...paths }
+      result.prefixes = { ...prefixes }
+      reply
+        .code(200)
+        .send(result)
+    }
+  } catch (error) {
+    throw new Error(`Course Controllers Read Course By Slug Published ${error}`)
   }
 }
 
 async function readPublishedCourses (req, reply) {
-  const {
-    mongo: {
-      db: _db
-    },
-    config: {
-      PATH_FILES_COURSES: pathFilesCourses,
-      PATH_FILES_IMAGES: pathFilesImages,
-      PATH_FILES_ORIGINALS: pathFilesOriginals,
-      PATH_FILES_THUMBNAILS: pathFilesThumbnails,
-      PREFIX_FILES_IMAGES: prefixFilesImages,
-      PREFIX_FILES_THUMBNAILS: prefixFilesThumbnails
-    }
-  } = this
+  const { config, mongo: { db: _db }, } = this
   const filters = [{ isPublished: true }, { publishOn: { $lte: new Date() } }]
   const result = await getAllCourses(_db, filters)
   const { status } = result
@@ -359,8 +310,8 @@ async function readPublishedCourses (req, reply) {
       .code(404)
       .send(result)
   } else if ( status === 'ok') {
-    const paths = { pathFilesCourses, pathFilesImages, pathFilesOriginals, pathFilesThumbnails}
-    const prefixes = { prefixFilesImages, prefixFilesThumbnails}
+    const paths = getPaths(config)
+    const prefixes = getPrefixes(config)
     result.paths = { ...paths }
     result.prefixes = { ...prefixes }
     reply
@@ -368,30 +319,6 @@ async function readPublishedCourses (req, reply) {
       .send(result)
   }
 }
-// async function readAllCourses (req, reply) {
-//   const { mongo: { db: _db } } = this
-
-//   // Check for authorization
-//   // If no authorization, return published true only
-//   // If role is user, return user courses only
-//   // If role is publisher, return publisher & user courses assigned to that publisher
-//   // If role is admin, return admin & user/publisher courses assigned to that admin
-//   // If role is superadmin, return all courses
-
-//   const result = await getAllCourses(_db)
-//   const { status } = result
-
-//   if ( status === 'error' ) {
-//     // TODO: Figure out what the error is and send an appropriate code
-//     reply
-//       .code(404)
-//       .send(result)
-//   } else if ( status === 'ok') {
-//     reply
-//       .code(200)
-//       .send(result)
-//   }
-// }
 
 export {
   acquireCourseByIdAll,
