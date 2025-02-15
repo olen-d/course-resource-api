@@ -1,8 +1,42 @@
-import { createDifficultyLevel, readAllDifficultyLevels } from '../../services/v1/difficulty-services.mjs'
+import { createDifficultyLevel, readAllDifficultyLevels, readDifficultyById, updateDifficulty } from '../../services/v1/difficulty-services.mjs'
+
+const changeDifficulty = async (_db, _ObjectId, id, info) => {
+  const infoProcessed = { $set: {} }
+  const objId = _ObjectId(id)
+
+  for (const key of Object.keys(info)) {
+    infoProcessed.$set[key] = info[key]
+  }
+
+  try {
+    const data = await updateDifficulty(_db, objId, infoProcessed)
+    // TODO: check for error and return to view level
+    return { status: 'ok', data }
+  } catch (error) {
+    throw new Error(`Difficulty Models Change Difficulty ${error}`)
+  }
+}
 
 const getAllDifficultyLevels = async _db => {
   try {
     const data = await readAllDifficultyLevels(_db)
+    if (Array.isArray(data) && data.length > 0) {
+      return { status: 'ok', data }
+    } else {
+      return { status: 'error' }
+    }
+  } catch (error) {
+    throw new Error(`Difficulty Models Get All Difficulty Levels ${error}`)
+  }
+}
+
+const getDifficultyById = async (_db, _ObjectId, filters, info) => {
+  const { id } = info
+
+  filters.push({ _id: _ObjectId(id) })
+
+  try {
+    const data = await readDifficultyById(_db, filters)
     if (Array.isArray(data) && data.length > 0) {
       return { status: 'ok', data }
     } else {
@@ -41,4 +75,4 @@ const newDifficultyLevel = async (_db, _ObjectId, info) => {
   }
 }
 
-export { getAllDifficultyLevels, newDifficultyLevel }
+export { changeDifficulty, getAllDifficultyLevels, getDifficultyById, newDifficultyLevel }
