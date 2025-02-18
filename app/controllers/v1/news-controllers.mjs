@@ -18,6 +18,8 @@ async function addStory (req, reply) {
     if (canCreate) {
       const trimmed = trimAll(body)
       const info = sanitizeAll(trimmed)
+      info.creatorId = sub
+      info.ownerId = sub
       // TODO: Check that the userId in the client submittal equals the userId from the token (i.e. sub)
 
       const result = await newStory(_db, _ObjectId, info)
