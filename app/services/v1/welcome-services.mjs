@@ -1,16 +1,16 @@
-const createWelcomeItem = async (_db, _ObjectId, welcomeItemInfo) => {
+const createWelcomeItem = async (_db, _ObjectId, info) => {
   try {
-    const { creatorId: creatorIdValue, ownerId: ownerIdValue } = welcomeItemInfo
-    welcomeItemInfo.creatorId = _ObjectId(creatorIdValue) // Store creatorId as an ObjectId, useful for doing $lookup
-    welcomeItemInfo.ownerId = _ObjectId(ownerIdValue)
-    const result = await _db.collection('welcome').insertOne(welcomeItemInfo)
+    const { creatorId: creatorIdValue, ownerId: ownerIdValue } = info
+    info.creatorId = _ObjectId(creatorIdValue) // Store creatorId as an ObjectId, useful for doing $lookup
+    info.ownerId = _ObjectId(ownerIdValue)
+    const result = await _db.collection('welcome').insertOne(info)
     return result
   } catch (error) {
     throw new Error(error)
   }
 }
 
-const readWelcomeItemBySlug = async (_db, filters) => { // The slug is included in filters
+const readWelcomeItem = async (_db, filters) => { // The slug is included in filters
   // TODO: Sanitize filters
   // TODO: Make this a seperate helper function
   const mongoFilters = filters.reduce((obj, item) => {
@@ -61,4 +61,9 @@ const updateWelcomeItem = async (_db, welcomeItemId, welcomeItemInfo) => {
   }
  }
 
-export { createWelcomeItem, readWelcomeItemBySlug, readAllWelcomeItems, updateWelcomeItem }
+export {
+  createWelcomeItem,
+  readWelcomeItem,
+  readAllWelcomeItems,
+  updateWelcomeItem
+}

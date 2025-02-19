@@ -1,6 +1,6 @@
 import { micromark } from 'micromark'
 import { gfm, gfmHtml } from 'micromark-extension-gfm'
-import { createWelcomeItem, readWelcomeItemBySlug, readAllWelcomeItems, updateWelcomeItem } from '../../services/v1/welcome-services.mjs'
+import { createWelcomeItem, readWelcomeItem, readAllWelcomeItems, updateWelcomeItem } from '../../services/v1/welcome-services.mjs'
 import { validateContent, validateTitle } from '../../services/v1/validate-welcome-services.mjs'
 import { processValidations } from '../../services/v1/validate-services.mjs'
 
@@ -22,22 +22,23 @@ const changeWelcomeItem = async (_db, _ObjectId, welcomeItemId, welcomeItemInfo)
   }
 }
 
-const getWelcomeItemBySlug = async (_db, filters, slug) => {
-  // TODO: Santize the slug
-  filters.push({ slug })
-
-  const data = await readWelcomeItemBySlug(_db, filters)
-  if(Array.isArray(data) && data.length > 0) {
-    const [{ content, userFullname: [{ firstName, lastName }] }] = data
-    const contentHtml = micromark(content, {
-      extensions: [gfm()],
-      htmlExtensions: [gfmHtml()]
-    })
-    data[0].contentHtml = contentHtml
-    data[0].userFullname = `${firstName} ${lastName}`
-    return { status: 'ok', data }
-  } else {
-    return { status: 'error' }
+const getWelcomeItem = async (_db, filters) => {
+  try {
+    const data = await readWelcomeItem(_db, filters)
+    if(Array.isArray(data) && data.length > 0) {
+      const [{ content, userFullname: [{ firstName, lastName }] }] = data
+      const contentHtml = micromark(content, {
+        extensions: [gfm()],
+        htmlExtensions: [gfmHtml()]
+      })
+      data[0].contentHtml = contentHtml
+      data[0].userFullname = `${firstName} ${lastName}`
+      return { status: 'ok', data }
+    } else {
+      return { status: 'error' }
+    }
+  } catch (error) {
+    throw new Error(`Welcome Models Get Welcome Item ${error}`)
   }
 }
 
@@ -58,9 +59,9 @@ const getAllWelcomeItems = async (_db, filters) => {
   }
 }
 
-const newWelcomeItem = async (_db, _ObjectId, welcomeItemInfo) => {
+const newWelcomeItem = async (_db, _ObjectId, info) => {
 
-  const { content, title } = welcomeItemInfo
+  const { content, title } = info
 
   const isValidContent = validateContent(content)
   const isValidTitle = validateTitle(title)
@@ -75,7 +76,7 @@ const newWelcomeItem = async (_db, _ObjectId, welcomeItemInfo) => {
   })
 
   if (foundValidationError === -1) {
-    const data = await createWelcomeItem(_db, _ObjectId, welcomeItemInfo)
+    const data = await createWelcomeItem(_db, _ObjectId, info)
     // TODO: check for error and return to view level
     return { status: 'ok', data }
   } else {
@@ -83,4 +84,4 @@ const newWelcomeItem = async (_db, _ObjectId, welcomeItemInfo) => {
   }
 }
 
-export { changeWelcomeItem, getWelcomeItemBySlug, getAllWelcomeItems, newWelcomeItem }
+export { changeWelcomeItem, getWelcomeItem, getAllWelcomeItems, newWelcomeItem }

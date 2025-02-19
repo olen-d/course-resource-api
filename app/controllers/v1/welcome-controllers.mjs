@@ -1,26 +1,43 @@
 import { sanitizeAll, trimAll } from "../../services/v1/input-services.mjs";
-import { changeWelcomeItem, getWelcomeItemBySlug, getAllWelcomeItems, newWelcomeItem } from "../../models/v1/welcome-models.mjs";
+import { changeWelcomeItem, getWelcomeItem, getAllWelcomeItems, newWelcomeItem } from "../../models/v1/welcome-models.mjs";
 
-async function addWelcomeItem (req, reply) {
+async function acquireWelcomeItemAllById (req, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId } } = this
 
-  const { body, verifiedAuthToken: { role, sub }, } = req
-  // Array of roles authorized to create welcome items
-  const rolesAuthorized = ['siteadmin', 'superadmin']
-  const canCreate = rolesAuthorized.indexOf(role) !== -1
+  const { verifiedAuthToken: { role, sub }, } = req
 
-  if (canCreate) {
-    const trimmed = trimAll(body)
-    const welcomeItemInfo = sanitizeAll(trimmed)
-    // TODO: Check that the userId in the client submittal equals the userId from the token (i.e. sub)
-    const result = await newWelcomeItem(_db, _ObjectId, welcomeItemInfo)
-    return result
-  } else {
-    throw new Error('current role cannot create a welcome item')
+  const filters = []
+
+  if (role === 'superadmin') {
+    filters.push({})
+  } else if (role === 'siteadmin') {
+    filters.push({ ownerId: sub })
+  }
+
+  const { params: { id } } = req
+  const objId = _ObjectId(id)
+  filters.push({ _id: objId })
+
+  try {
+    const result = await getWelcomeItem(_db, filters)
+    const { status } = result
+  
+    if ( status === 'error' ) {
+      // TODO: Figure out what the error is and send an appropriate code
+      reply
+        .code(404)
+        .send(result)
+    } else if ( status === 'ok') {
+      reply
+        .code(200)
+        .send(result)
+    }
+  } catch (error) {
+    throw new Error(`Welcome Controllers Acquire Welcome Item All By Id ${error}`)
   }
 }
 
-async function readWelcomeItemBySlugAll (req, reply) {
+async function acquireWelcomeItemAllBySlug (req, reply) {
   const { mongo: { db: _db } } = this
 
   const { verifiedAuthToken: { role, sub }, } = req
@@ -34,18 +51,45 @@ async function readWelcomeItemBySlugAll (req, reply) {
   }
 
   const { params: { slug } } = req
-  const result = await getWelcomeItemBySlug(_db, filters, slug)
-  const { status } = result
+  filters.push({ slug })
 
-  if ( status === 'error' ) {
-    // TODO: Figure out what the error is and send an appropriate code
-    reply
-      .code(404)
-      .send(result)
-  } else if ( status === 'ok') {
-    reply
-      .code(200)
-      .send(result)
+  try {
+    const result = await getWelcomeItem(_db, filters)
+    const { status } = result
+  
+    if ( status === 'error' ) {
+      // TODO: Figure out what the error is and send an appropriate code
+      reply
+        .code(404)
+        .send(result)
+    } else if ( status === 'ok') {
+      reply
+        .code(200)
+        .send(result)
+    }
+  } catch (error) {
+    throw new Error(`Welcome Controllers Acquire Welcome Item All By Slug ${error}`)
+  }
+}
+
+async function addWelcomeItem (req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId } } = this
+
+  const { body, verifiedAuthToken: { role, sub }, } = req
+  // Array of roles authorized to create welcome items
+  const rolesAuthorized = ['siteadmin', 'superadmin']
+  const canCreate = rolesAuthorized.indexOf(role) !== -1
+
+  if (canCreate) {
+    const trimmed = trimAll(body)
+    const info = sanitizeAll(trimmed)
+    info.creatorId = sub
+    info.ownerId = sub
+    // TODO: Check that the userId in the client submittal equals the userId from the token (i.e. sub)
+    const result = await newWelcomeItem(_db, _ObjectId, info)
+    return result
+  } else {
+    throw new Error('current role cannot create a welcome item')
   }
 }
 
@@ -113,4 +157,11 @@ async function updateWelcomeItem (req, reply) {
   }
 }
 
-export { addWelcomeItem, readWelcomeItemBySlugAll, readAllWelcomeItems, readPublishedWelcomeItems, updateWelcomeItem }
+export {
+  acquireWelcomeItemAllById,
+  acquireWelcomeItemAllBySlug,
+  addWelcomeItem,
+  readAllWelcomeItems,
+  readPublishedWelcomeItems,
+  updateWelcomeItem
+}
