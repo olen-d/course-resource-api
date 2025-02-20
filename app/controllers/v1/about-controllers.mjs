@@ -52,9 +52,11 @@ async function addAboutItem (req, reply) {
 
   if (canCreate) {
     const trimmed = trimAll(body)
-    const aboutItemInfo = sanitizeAll(trimmed)
+    const info = sanitizeAll(trimmed)
+    info.creatorId = sub
+    info.ownerId = sub
     // TODO: Check that the userId in the client submittal equals the userId from the token (i.e. sub)
-    const result = await newAboutItem(_db, _ObjectId, aboutItemInfo)
+    const result = await newAboutItem(_db, _ObjectId, info)
     return result
   } else {
     throw new Error('current role cannot create a course')
