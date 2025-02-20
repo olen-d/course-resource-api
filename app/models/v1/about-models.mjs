@@ -87,9 +87,9 @@ const getAllAboutItems = async (_db, filters) => {
   }
 }
 
-const newAboutItem = async (_db, _ObjectId, aboutItemInfo) => {
+const newAboutItem = async (_db, _ObjectId, info) => {
 
-  const { content, title } = aboutItemInfo
+  const { content, title } = info
 
   const isValidContent = validateContent(content)
   const isValidTitle = validateTitle(title)
@@ -104,7 +104,7 @@ const newAboutItem = async (_db, _ObjectId, aboutItemInfo) => {
   })
 
   if (foundValidationError === -1) {
-    const data = await createAboutItem(_db, _ObjectId, aboutItemInfo)
+    const data = await createAboutItem(_db, _ObjectId, info)
     // TODO: check for error and return to view level
     return { status: 'ok', data }
   } else {

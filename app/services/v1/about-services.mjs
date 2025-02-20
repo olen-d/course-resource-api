@@ -1,9 +1,9 @@
-const createAboutItem = async (_db, _ObjectId, aboutItemInfo) => {
+const createAboutItem = async (_db, _ObjectId, info) => {
   try {
-    const { creatorId: creatorIdValue, ownerId: ownerIdValue } = aboutItemInfo
-    aboutItemInfo.creatorId = _ObjectId(creatorIdValue) // Store creatorId as an ObjectId, useful for doing $lookup
-    aboutItemInfo.ownerId = _ObjectId(ownerIdValue)
-    const result = await _db.collection('about').insertOne(aboutItemInfo)
+    const { creatorId: creatorIdValue, ownerId: ownerIdValue } = info
+    info.creatorId = _ObjectId(creatorIdValue) // Store creatorId as an ObjectId, useful for doing $lookup
+    info.ownerId = _ObjectId(ownerIdValue)
+    const result = await _db.collection('about').insertOne(info)
     return result
   } catch (error) {
     throw new Error(error)
