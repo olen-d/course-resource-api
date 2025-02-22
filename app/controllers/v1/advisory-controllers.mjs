@@ -94,7 +94,7 @@ async function acquireAdvisoryPublishedById (req, reply) {
   const { body, params: { id }, } = req
   const objId = _ObjectId(id)
 
-  const filters = [{ _id: objId, isPublished: true }]
+  const filters = { '$and': [{ _id: objId, isPublished: true }] }
   try {
     const result = await getAdvisoriesAll(_db, filters)
     const { status } = result
