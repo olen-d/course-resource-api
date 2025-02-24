@@ -10,6 +10,18 @@ const createAboutItem = async (_db, _ObjectId, info) => {
   }
 }
 
+const deleteAboutItem = async (_db, info) => {
+  const { itemObjId } = info
+  const filter = { _id: itemObjId }
+
+  try {
+    const result = await _db.collection('about').findOneAndDelete(filter)
+    return result
+  } catch (error) {
+    throw new Error(`About Services Delete About Item ${error}`)
+  }
+}
+
 const readAboutItemById = async (_db, filters) => { // The id is included in filters
   // TODO: Sanitize filters
   // TODO: Make this a seperate helper function
@@ -82,6 +94,7 @@ const updateAboutItem = async (_db, aboutItemId, aboutItemInfo) => {
 
 export {
   createAboutItem,
+  deleteAboutItem,
   readAboutItemById,
   readAboutItemBySlug,
   readAllAboutItems,

@@ -4,7 +4,8 @@ import {
   getAboutItemById,
   getAboutItemBySlug,
   getAllAboutItems,
-  newAboutItem
+  newAboutItem,
+  removeAboutItem
 } from "../../models/v1/about-models.mjs";
 
 async function acquireAboutItemAllById (req, reply) {
@@ -60,6 +61,25 @@ async function addAboutItem (req, reply) {
     return result
   } else {
     throw new Error('current role cannot create a course')
+  }
+}
+
+async function purgeAboutItem(req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId} } = this
+  const { params: { id: itemId }, verifiedAuthToken: { role, sub } } = req
+
+  const rolesAuthorized = ['author', 'admin', 'superadmin']
+  const canPurge = rolesAuthorized.indexOf(role) !== -1
+
+  try {
+    if (canPurge) {
+      const result = await removeAboutItem(_db, _ObjectId, { itemId })
+      return result
+    } else {
+      throw new Error('current role cannot delete an an about item')
+    }
+  } catch (error) {
+    throw new Error(`About Items Controllers Purge About Item ${error}`)
   }
 }
 
@@ -159,6 +179,7 @@ async function updateAboutItem (req, reply) {
 export {
   acquireAboutItemAllById,
   addAboutItem,
+  purgeAboutItem,
   readAboutItemBySlugAll,
   readAllAboutItems,
   readPublishedAboutItems,
