@@ -2,6 +2,7 @@ import { micromark } from 'micromark'
 import { gfm, gfmHtml } from 'micromark-extension-gfm'
 import {
   createAboutItem,
+  deleteAboutItem,
   readAboutItemById,
   readAboutItemBySlug,
   readAllAboutItems,
@@ -112,10 +113,24 @@ const newAboutItem = async (_db, _ObjectId, info) => {
   }
 }
 
+const removeAboutItem = async (_db, _ObjectId, info) => {
+  const { itemId } = info
+  const itemObjId = _ObjectId(itemId)
+
+  try {
+    const data = await deleteAboutItem(_db, { itemObjId })
+    // TODO: check for error and return to view level
+    return { status: 'ok', data }
+  } catch (error) {
+    throw new Error(`About Models Remove About Item ${error}`)
+  }
+}
+
 export {
   changeAboutItem,
   getAboutItemById,
   getAboutItemBySlug,
   getAllAboutItems,
-  newAboutItem
+  newAboutItem,
+  removeAboutItem
 }
