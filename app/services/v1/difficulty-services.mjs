@@ -12,6 +12,18 @@ const createDifficultyLevel = async (_db, _ObjectId, info) => {
   }
 }
 
+const deleteDifficultyLevel = async (_db, info) => {
+  const { levelObjId } = info
+  const filter = { _id: levelObjId }
+
+  try {
+    const result = await _db.collection('difficulty').findOneAndDelete(filter)
+    return result
+  } catch (error) {
+    throw new Error(`Difficulty Services Delete Difficulty Level ${error}`)
+  }
+}
+
 const readAllDifficultyLevels = async _db => {
   const cursor = _db.collection('difficulty').find().sort({ 'rating': 1 })
 
@@ -54,4 +66,10 @@ const updateDifficulty = async (_db, objId, info) => {
   }
 }
 
-export { createDifficultyLevel, readAllDifficultyLevels, readDifficultyById, updateDifficulty }
+export {
+  createDifficultyLevel,
+  deleteDifficultyLevel,
+  readAllDifficultyLevels,
+  readDifficultyById,
+  updateDifficulty
+}

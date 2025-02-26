@@ -1,7 +1,13 @@
-import { acquireDifficultyLevelById, addDifficultyLevel, readAllDifficultyLevels, reviseDifficulty } from '../../controllers/v1/difficulty-controllers.mjs'
+import {
+  acquireDifficultyLevelById,
+  addDifficultyLevel,
+  purgeDifficultyLevel,
+  readAllDifficultyLevels,
+  reviseDifficulty
+} from '../../controllers/v1/difficulty-controllers.mjs'
 
 const routes = (app, opts, done) => {
-  // app.delete('/story/:id', { preHandler: app.auth([app.verifyJWT]) }, newsControllers.purgeStory)
+  app.delete('/level/:id', { preHandler: app.auth([app.verifyJWT]) }, purgeDifficultyLevel)
   app.get('/', readAllDifficultyLevels)
   app.get('/id/:id', acquireDifficultyLevelById)
   // app.get('/active', newsControllers.readStoriesActive)
