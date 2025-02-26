@@ -1,5 +1,11 @@
 import { sanitizeAll, trimAll } from '../../services/v1/input-services.mjs'
-import { changeDifficulty, getAllDifficultyLevels, getDifficultyById, newDifficultyLevel } from '../../models/v1/difficulty-models.mjs'
+import {
+  changeDifficulty,
+  getAllDifficultyLevels,
+  getDifficultyById,
+  newDifficultyLevel,
+  removeDifficultyLevel
+} from '../../models/v1/difficulty-models.mjs'
 
 async function acquireDifficultyLevelById (request, reply) {
   const { mongo: { db: _db, ObjectId: _ObjectId }, } = this
@@ -38,6 +44,25 @@ async function addDifficultyLevel (req, reply) {
   }
 }
 
+async function purgeDifficultyLevel(req, reply) {
+  const { mongo: { db: _db, ObjectId: _ObjectId} } = this
+  const { params: { id: levelId }, verifiedAuthToken: { role, sub } } = req
+
+  const rolesAuthorized = ['author', 'admin', 'superadmin']
+  const canPurge = rolesAuthorized.indexOf(role) !== -1
+
+  try {
+    if (canPurge) {
+      const result = await removeDifficultyLevel(_db, _ObjectId, { levelId })
+      return result
+    } else {
+      throw new Error('current role cannot delete a difficulty level')
+    }
+  } catch (error) {
+    throw new Error(`Difficulty Controllers Purge Difficulty Level ${error}`)
+  }
+}
+
 async function readAllDifficultyLevels (req, reply) {
   const { mongo: { db: _db } } = this
 
@@ -71,4 +96,10 @@ async function reviseDifficulty (req, reply) {
   }
 }
 
-export { acquireDifficultyLevelById, addDifficultyLevel, readAllDifficultyLevels, reviseDifficulty }
+export {
+  acquireDifficultyLevelById,
+  addDifficultyLevel,
+  purgeDifficultyLevel,
+  readAllDifficultyLevels,
+  reviseDifficulty
+}

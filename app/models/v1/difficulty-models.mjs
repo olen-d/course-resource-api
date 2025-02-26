@@ -1,4 +1,10 @@
-import { createDifficultyLevel, readAllDifficultyLevels, readDifficultyById, updateDifficulty } from '../../services/v1/difficulty-services.mjs'
+import {
+  createDifficultyLevel,
+  deleteDifficultyLevel,
+  readAllDifficultyLevels,
+  readDifficultyById,
+  updateDifficulty
+} from '../../services/v1/difficulty-services.mjs'
 
 const changeDifficulty = async (_db, _ObjectId, id, info) => {
   const infoProcessed = { $set: {} }
@@ -75,4 +81,23 @@ const newDifficultyLevel = async (_db, _ObjectId, info) => {
   }
 }
 
-export { changeDifficulty, getAllDifficultyLevels, getDifficultyById, newDifficultyLevel }
+const removeDifficultyLevel = async (_db, _ObjectId, info) => {
+  const { levelId } = info
+  const levelObjId = _ObjectId(levelId)
+
+  try {
+    const data = await deleteDifficultyLevel(_db, { levelObjId })
+    // TODO: check for error and return to view level
+    return { status: 'ok', data }
+  } catch (error) {
+    throw new Error(`Difficulty Models Remove Difficulty Level ${error}`)
+  }
+}
+
+export {
+  changeDifficulty,
+  getAllDifficultyLevels,
+  getDifficultyById,
+  newDifficultyLevel,
+  removeDifficultyLevel
+}
