@@ -11,8 +11,6 @@ const readAllSubSchema = {
             properties: {
               title: { type: 'string'},
               slug: { type: 'string' },
-              creatorId: { type: 'string' },
-              ownerId: { type: 'string' },
               isPublished: { type: 'boolean' },
               publishOn: { type: 'number' },
               length: { type: 'number' },

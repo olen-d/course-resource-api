@@ -85,7 +85,7 @@ const getCourse = async (_db, filters) => {
   }
 }
 
-const newCourse = async (_db, _ObjectId, courseInfo) => {
+const newCourse = async (_db, _ObjectId, info) => {
 
   // new Date()
   const {
@@ -120,7 +120,7 @@ const newCourse = async (_db, _ObjectId, courseInfo) => {
     totalChases,
     totalDogs,
     totalLegs
-  } = courseInfo
+  } = info
 
   const dogStatisticsFields = [
     'totalChases',
@@ -138,24 +138,24 @@ const newCourse = async (_db, _ObjectId, courseInfo) => {
     'postcode'
   ]
 
-  const courseInfoProcessed = {}
+  const infoProcessed = {}
   const dogStatistics = {}
   const location = {}
 
-  for (const key of Object.keys(courseInfo)) {
+  for (const key of Object.keys(info)) {
     const indexDog = dogStatisticsFields.findIndex(dogStatistic => dogStatistic === key)
     const indexLoc = locationFields.findIndex(location => location === key)
     if (indexDog !== -1) {
-      dogStatistics[key] = courseInfo[key]
+      dogStatistics[key] = info[key]
     } else if (indexLoc !== -1 ) {
-      location[key] = courseInfo[key]
+      location[key] = info[key]
     } else {
-      courseInfoProcessed[key] = courseInfo[key]
+      infoProcessed[key] = info[key]
     }
   }
 
-  courseInfoProcessed.location = location
-  courseInfoProcessed.dogStatistics = dogStatistics
+  infoProcessed.location = location
+  infoProcessed.dogStatistics = dogStatistics
 
   const isValidPublishOn = validateTimestamp(publishOn)
 
@@ -169,7 +169,7 @@ const newCourse = async (_db, _ObjectId, courseInfo) => {
   })
 
   if (foundValidationError === -1) {
-    const data = await createCourse(_db, _ObjectId, courseInfoProcessed)
+    const data = await createCourse(_db, _ObjectId, infoProcessed)
     // TODO: check for error and return to view level
     return { status: 'ok', data }
   } else {
