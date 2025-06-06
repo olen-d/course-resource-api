@@ -3,17 +3,24 @@ import sharp from 'sharp'
 import { pipeline } from 'stream'
 import * as util from 'util'
 
-const createCourse = async (_db, _ObjectId, newCourse) => {
+const createCourse = async (_db, _ObjectId, info) => {
+  const {
+    creatorId,
+    difficulty,
+    ownerId,
+    publishOn
+  } = info
+
+  info.creatorId = _ObjectId(creatorId)
+  info.ownerId = _ObjectId(ownerId)
+  info.difficulty = _ObjectId(difficulty)
+  info.publishOn = new Date(publishOn) // MongoDB store in native date format
+
   try {
-    const { creatorId: creatorIdValue, difficulty: difficultyValue, publishOn: publishOnValue, ownerId: ownerIdValue } = newCourse
-    newCourse.creatorId = _ObjectId(creatorIdValue) // Store creatorId as an ObjectId, useful for doing $lookup
-    newCourse.difficulty = _ObjectId(difficultyValue) // Store difficulty as an ObjectId for doing $lookup
-    newCourse.publishOn = new Date(publishOnValue) // MongoDB store in native date format
-    newCourse.ownerId = _ObjectId(ownerIdValue)
-    const result = await _db.collection('courses').insertOne(newCourse)
+    const result = await _db.collection('courses').insertOne(info)
     return result
   } catch (error) {
-    console.log('ERROR:', error)
+    throw new Error(`Course Services Create Course ${error}`)
   }
 }
 

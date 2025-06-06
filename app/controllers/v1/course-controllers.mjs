@@ -51,10 +51,16 @@ async function addCourse (req, reply) {
 
   if (canCreate) {
     const trimmed = trimAll(body)
-    const courseInfo = sanitizeAll(trimmed)
+    const info = sanitizeAll(trimmed)
+    info.creatorId = sub
+    info.ownerId = sub
     // TODO: Check that the userId in the client submittal equals the userId from the token (i.e. sub)
-    const result = await newCourse(_db, _ObjectId, courseInfo)
-    return result
+    try {
+      const result = await newCourse(_db, _ObjectId, info)
+      return result
+    } catch (error) {
+      throw new Error(`Course Controllers Add Course ${error}`)
+    }
   } else {
     throw new Error('current role cannot create a course')
   }

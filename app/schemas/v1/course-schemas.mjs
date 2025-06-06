@@ -8,8 +8,6 @@ const addSchema = {
     required: [ 
       'title',
       'slug',
-      'creatorId',
-      'ownerId',
       'isPublished',
       'publishOn',
       'length',
@@ -35,8 +33,6 @@ const addSchema = {
     properties: {
       title: { type: 'string'},
       slug: { type: 'string' },
-      creatorId: { type: 'string' },
-      ownerId: { type: 'string' },
       isPublished: { type: 'boolean' },
       publishOn: { type: 'number' },
       length: { type: 'number' },
